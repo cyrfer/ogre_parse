@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../../../../../../personal/code/dev/Pint/pint/GAE/PintGAE/.idea/PintGAE.iml" filepath="$PROJECT_DIR$/../../../../../../../../personal/code/dev/Pint/pint/GAE/PintGAE/.idea/PintGAE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ogre_parse.iml" filepath="$PROJECT_DIR$/.idea/ogre_parse.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../OgreMaterialParser/parse_ogre/.idea/parse_ogre.iml" filepath="$PROJECT_DIR$/../OgreMaterialParser/parse_ogre/.idea/parse_ogre.iml" />
+    </modules>
+  </component>
+</project>
+
