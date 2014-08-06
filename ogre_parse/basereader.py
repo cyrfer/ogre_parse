@@ -5,7 +5,7 @@ class ReadBase(object):
     # all derived classes will provide the grammar object
     def __init__(self, grammar):
         self.grammar_ = grammar
-        self.debug_flag_ = True
+        self.debug_flag_ = False
         self.grammar_.setDebug(False)
 
     def getGrammar(self):

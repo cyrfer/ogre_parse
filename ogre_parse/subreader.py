@@ -11,7 +11,7 @@ EOL = LineEnd().suppress()
 ident = Word( alphas+"_", alphas+nums+"_$" )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
-
+prop_val_string = Word(alphanums+'_.')
 
 class ReadTextureUnit(ogre_parse.basereader.ReadBase):
     def __init__(self):
@@ -20,7 +20,7 @@ class ReadTextureUnit(ogre_parse.basereader.ReadBase):
                                 tex_coord_set tex_address_mode tex_border_colour filtering")
         # textureProp = texturePropName + OneOrMore(~texturePropName + ~EOL + Word(alphanums+'.'))
         texturePropName.setName('-Texture Prop Name-')
-        textureProp = Group(texturePropName + Group(OneOrMore(~EOL + Word(alphanums+'.'))))
+        textureProp = Group(texturePropName + Group(OneOrMore(~EOL + prop_val_string)))
         textureProp.setName('-Texture Prop-')
         textureDecl = Keyword('texture_unit') + Optional(ident).suppress() + \
                         lbrace + \
@@ -38,7 +38,7 @@ class ReadShaderReference(ogre_parse.basereader.ReadBase):
         # --- define the shader_ref parser
         shaderRefPropName = oneOf('param_indexed param_indexed_auto param_named param_named_auto shared_params_ref')
         shaderRefPropName.setName('-Shader Ref Prop Name-')
-        shaderRefProp = Group(shaderRefPropName + Group(OneOrMore(~EOL + Word(alphanums+'_'))))
+        shaderRefProp = Group(shaderRefPropName + Group(OneOrMore(~EOL + prop_val_string)))
         shaderRefProp.setName('-Shader Ref Prop-')
                                 # Group(ZeroOrMore(shaderRefProp)) + \
         shaderRefDecl = oneOf('vertex_program_ref fragment_program_ref') + ident + \
@@ -60,11 +60,12 @@ class ReadPass(ogre_parse.basereader.ReadBase):
         # --- define the pass parser
         passPropName = oneOf('ambient diffuse specular emissive')
         passPropName.setName('-Pass Prop Name-')
-        passProp = Group(passPropName + Group(OneOrMore(~EOL + Word(alphanums))))
+        passProp = Group(passPropName + Group(OneOrMore(~EOL + prop_val_string)))
         passProp.setName('-Pass Prop-')
+        passMember = passProp | self.texture_unit_.getGrammar() | self.shader_ref_.getGrammar()
         passDecl = Keyword('pass').suppress() + Optional(ident).suppress() + \
                         lbrace + \
-                            ZeroOrMore(self.shader_ref_.getGrammar() | self.texture_unit_.getGrammar() | passProp) + \
+                            ZeroOrMore(passMember) + \
                         rbrace
         self.pass_ = Group(passDecl)
         self.pass_.setName('-Pass-')
@@ -81,14 +82,13 @@ class ReadTechnique(ogre_parse.basereader.ReadBase):
         # --- define the technique parser
         techPropName = oneOf('scheme lod_index shadow_caster_material shadow_receiver_material gpu_vendor_rule gpu_device_rule')
         techPropName.setName('-Technique Property Name-')
-        techProp = Group(techPropName + Group(OneOrMore(~EOL + Word(alphanums))))
+        techProp = Group(techPropName + Group(OneOrMore(~EOL + prop_val_string)))
         techProp.setName('-Technique Property-')
-        # techMember = techProp ^ self.pass_.getGrammar()
+        techMember = self.pass_.getGrammar() | techProp
         techDecl = Keyword('technique').suppress() + Optional(ident).suppress() + \
                         lbrace + \
-                            ZeroOrMore( techProp | self.pass_.getGrammar() ) + \
+                            ZeroOrMore( techMember ) + \
                         rbrace
-                            # ZeroOrMore( techMember )
         self.technique_ = Group(techDecl)
         self.technique_.setName('-Technique-')
         self.technique_.setResultsName('technique')

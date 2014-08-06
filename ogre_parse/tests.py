@@ -234,6 +234,12 @@ class TestTechnique(unittest.TestCase):
         len_props  = len(res[0])
         self.assertEqual(len_props, 2) # should only be '1' for properties, and '1' for passes
 
+    def test_technique_scheme(self):
+        res = self.reader_.parseString(test_technique_scheme)
+
+        len_elements = len(res[0])
+        self.assertEqual(len_elements, 2)
+
 
 # --------------------------------------------- #
 test_mat = """
@@ -273,6 +279,21 @@ material
 }
 """
 
+test_mat_prop_tech_prop = """
+material
+{
+    lod_strategy Distance
+
+    technique
+    {
+        pass
+        {
+        }
+    }
+
+    receive_shadows on
+}
+"""
 
 class TestMaterial(unittest.TestCase):
     def setUp(self):
@@ -294,6 +315,12 @@ class TestMaterial(unittest.TestCase):
         len_elements = len(res)
         self.assertEqual(len_elements, 2)
 
+    def test_mat_prop_tech_prop(self):
+        res = self.reader_.parseString(test_mat_prop_tech_prop)
+
+        len_elements = len(res)
+        self.assertEqual(len_elements, 3)
+
 
 # --------------------------------------------- #
 
@@ -302,6 +329,8 @@ material test_script_mat
 {
     technique
     {
+        scheme gizmo_name
+
         pass
         {
         }
@@ -331,6 +360,39 @@ material
 }
 """
 
+test_script_mat_comments = """
+// this is a great place for comments
+material test_script_mat // a comment here would  be cool
+{
+    // this is a technique
+    technique // you never know
+    {
+        // this is a pass
+        pass // will this cause a problem
+        {
+            // nothing to see here
+        } // let's
+    } // be
+} // clear
+// no problems with comments!
+"""
+
+test_script_real = """
+
+material NoMaterial
+{
+	technique
+	{
+        scheme forward_FF
+		pass
+		{
+            emissive 1 0 0 0
+		}
+	}
+}
+
+"""
+
 class TestScript(unittest.TestCase):
     def setUp(self):
         # instantiate reader
@@ -347,6 +409,18 @@ class TestScript(unittest.TestCase):
 
         len_elements = len(res)
         self.assertEqual(len_elements, 2)
+
+    def test_script_mat_comments(self):
+        res = self.reader_.parseString(test_script_mat_comments)
+
+        len_elements = len(res)
+        self.assertEqual(len_elements, 1)
+
+    def test_script_real(self):
+        res = self.reader_.parseString(test_script_real)
+
+        len_elements = len(res)
+        self.assertEqual(len_elements, 1)
 
 
 # --------------------------------------------- #

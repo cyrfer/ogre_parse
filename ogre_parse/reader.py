@@ -18,7 +18,7 @@ import ogre_parse.subreader
 
 # import pyparsing as pp
 from pyparsing import Optional, Word, Literal, Keyword, Forward, alphas, nums, alphanums, \
-    Group, ZeroOrMore, OneOrMore, oneOf, delimitedList, cStyleComment, restOfLine, LineEnd
+    Group, ZeroOrMore, OneOrMore, oneOf, delimitedList, cStyleComment, restOfLine, LineEnd, cppStyleComment
 
 import pprint
 
@@ -28,6 +28,7 @@ EOL = LineEnd().suppress()
 ident = Word( alphas+"_", alphas+nums+"_$" )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
+prop_val_string = Word(alphanums+'_.')
 
 
 # grammar to parse materials
@@ -37,10 +38,11 @@ class ReadMaterial(ogre_parse.basereader.ReadBase):
 
         # --- define the material parser
         matPropName = oneOf('lod_strategy lod_values receive_shadows transparency_casts_shadows set_texture_alias')
-        matProp = Group(matPropName  + Group(OneOrMore(~EOL + Word(alphanums))))
+        matProp = Group(matPropName  + Group(OneOrMore(~EOL + prop_val_string)))
+        matMember = self.technique_.getGrammar() | matProp
         matDecl = Keyword('material').suppress() + Optional(ident).suppress() + \
                         lbrace + \
-                            ZeroOrMore( self.technique_.getGrammar() | matProp ) + \
+                            ZeroOrMore( matMember ) + \
                         rbrace
         self.material_ = matDecl
         self.material_.setName('-Material-')
@@ -51,7 +53,7 @@ class ReadMaterial(ogre_parse.basereader.ReadBase):
 class ReadShaderDeclaration(ogre_parse.basereader.ReadBase):
     def __init__(self):
         shaderDeclPropName = oneOf('source entry_point target delegate')
-        shaderDeclProp = Group(shaderDeclPropName + OneOrMore(~EOL + Word(alphanums)))
+        shaderDeclProp = Group(shaderDeclPropName + OneOrMore(~EOL + prop_val_string))
         shaderType = oneOf('vertex_program geometry_program fragment_program')
         shaderName = ident
         shaderLang = oneOf('glsl hlsl cg asm')
@@ -99,6 +101,8 @@ class ReadScript(ogre_parse.basereader.ReadBase):
         scriptDecl = ZeroOrMore( self.material_.getGrammar() | \
                                  self.shader_declaration_.getGrammar() | \
                                  self.compositor_.getGrammar() )
+
+        scriptDecl.ignore(cppStyleComment)
 
         super(ReadScript, self).__init__(scriptDecl)
 
