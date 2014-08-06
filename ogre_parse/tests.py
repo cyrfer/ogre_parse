@@ -63,7 +63,7 @@ test_pass = """
 pass
 {
     ambient 0 0 0 1
-    diffuse 1 1 1 0
+    diffuse 1.0 1.0 1.0 1.0
 }
 """
 
@@ -117,6 +117,9 @@ class TestPass(unittest.TestCase):
 
         len_pass = len(res)
         self.assertEqual(len_pass, 1)
+
+        len_props = len(res[0])
+        self.assertEqual(len_props, 2)
 
     def test_pass_tex(self):
         res = self.reader_.parseString(test_pass_tex)
@@ -379,6 +382,7 @@ material test_script_mat // a comment here would  be cool
 
 test_script_real = """
 
+
 material NoMaterial
 {
 	technique
@@ -388,8 +392,270 @@ material NoMaterial
 		{
             emissive 1 0 0 0
 		}
+
 	}
+
+	//technique d3d9_gbuffer
+	//{
+ //       scheme deferred_gbuffer
+	//	pass
+	//	{
+ //           emissive 1 0 0 0
+
+ //           vertex_program_ref phong_hlsl
+ //           {
+ //           }
+
+ //           fragment_program_ref gbuffer_hlsl
+ //           {
+ //           }
+	//	}
+
+	//}
+
+ //   technique stencil
+ //   {
+ //       scheme stencil
+
+ //       pass
+ //       {
+ //           emissive 1 0 0 1
+ //       }
+ //   }
+
 }
+
+
+
+material Cube_OgreMax
+{
+	//technique forward_FF
+	//{
+ //       scheme forward_FF
+
+	//	pass Map#682
+	//	{
+	//		diffuse 0.588 0.588 0.588 1
+	//		specular 0 0 0 1 10
+	//		//emissive 1 1 1 1
+
+	//		texture_unit Map#683
+	//		{
+	//			texture cube_emissive_HDR.dds
+	//			filtering linear linear linear
+	//		}
+
+ //           //vertex_program_ref phong_1UV_fog_ver120
+ //           //{
+ //           //}
+
+ //           //fragment_program_ref BP_fog_emissive_alphaRejectEmissive
+ //           //{
+ //           //}
+	//	}
+	//}
+
+	//technique gbuffer
+	//{
+ //       scheme deferred_gbuffer
+
+	//	pass Map#682
+	//	{
+	//		diffuse 0.588 0.588 0.588 1
+	//		specular 0 0 0 1 10
+	//		//emissive 1 1 1 1
+
+	//		texture_unit Map#683
+	//		{
+	//			texture cube_emissive_HDR.dds
+	//			filtering linear linear linear
+	//		}
+
+ //           vertex_program_ref phong_1UV_hlsl
+ //           {
+ //           }
+
+ //           fragment_program_ref gbuffer_1UV_emissive_hlsl
+ //           {
+ //           }
+ //       }
+	//}
+
+    technique stencil
+    {
+        scheme stencil
+
+        pass
+        {
+            emissive 0 0.5 0 1
+
+            //vertex_program_ref phong_1UV_fog
+            //{
+            //}
+
+            //fragment_program_ref stencil_BP_fog_decal
+            //{
+            //}
+        }
+    }
+}
+
+
+
+material Cage_OgreMax
+{
+	technique
+	{
+        scheme forward_FF
+
+		pass
+		{
+			diffuse 0.588 0.588 0.588 1
+			specular 0 0 0 1 10
+		}
+
+	}
+
+	//technique d3d9_gbuffer
+	//{
+ //       scheme deferred_gbuffer
+
+	//	pass
+	//	{
+	//		diffuse 0.588 0.588 0.588 1
+	//		specular 0 0 0 1 10
+
+ //           vertex_program_ref phong_hlsl
+ //           {
+ //           }
+
+ //           fragment_program_ref gbuffer_hlsl
+ //           {
+ //           }
+	//	}
+
+	//}
+
+
+ //   technique stencil
+ //   {
+ //       scheme stencil
+
+ //       pass
+ //       {
+ //           emissive 0 0 0.5 1
+
+ //           vertex_program_ref phong_1UV_fog_ver120
+ //           {
+ //           }
+
+ //           fragment_program_ref stencil_BP_fog_decal
+ //           {
+ //           }
+ //       }
+ //   }
+}
+
+
+
+material terrain_OgreMax
+{
+	technique
+	{
+        scheme forward_FF
+
+		pass Map#686
+		{
+			ambient 0.588 0.588 0.588 1
+			diffuse 0.588 0.588 0.588 1
+			specular 0 0 0 1 10
+
+			texture_unit Map#687
+			{
+				texture central_lr_11_9.dds
+				filtering linear linear linear
+			}
+		}
+
+	}
+
+	//technique d3d9_gbuffer
+	//{
+ //       scheme deferred_gbuffer
+
+	//	pass
+	//	{
+	//		ambient 0.588 0.588 0.588 1
+	//		diffuse 0.588 0.588 0.588 1
+	//		specular 0 0 0 1 10
+
+	//		texture_unit
+	//		{
+	//			texture central_lr_11_9.dds
+	//			filtering linear linear linear
+	//		}
+
+ //           vertex_program_ref phong_1UV_hlsl
+ //           {
+ //           }
+
+ //           fragment_program_ref gbuffer_1UV_decal_hlsl
+ //           {
+ //           }
+	//	}
+
+	//}
+
+}
+
+
+
+material terrain2_OgreMax
+{
+	technique forward_FF
+	{
+        scheme forward_FF
+
+		pass
+		{
+			specular 0.231373 0.231373 0.231373 1 10
+
+			texture_unit Map#687
+			{
+				texture central_lr_11_9.dds
+				filtering linear linear linear
+			}
+		}
+
+	}
+
+	//technique d3d9_gbuffer
+	//{
+ //       scheme deferred_gbuffer
+
+	//	pass Map#686
+	//	{
+	//		specular 0.231373 0.231373 0.231373 1 10
+
+	//		texture_unit
+	//		{
+	//			texture central_lr_11_9.dds
+	//			filtering linear linear linear
+	//		}
+
+ //           vertex_program_ref phong_1UV_hlsl
+ //           {
+ //           }
+
+ //           fragment_program_ref gbuffer_1UV_decal_hlsl
+ //           {
+ //           }
+	//	}
+
+	//}
+
+}
+
 
 """
 
@@ -420,7 +686,7 @@ class TestScript(unittest.TestCase):
         res = self.reader_.parseString(test_script_real)
 
         len_elements = len(res)
-        self.assertEqual(len_elements, 1)
+        self.assertEqual(len_elements, 5)
 
 
 # --------------------------------------------- #

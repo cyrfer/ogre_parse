@@ -25,27 +25,45 @@ def script_search(aFolder):
 
 def parse_script(aPath):
     print('attempting to read: %s' % aPath)
+
+    len_elems = 0
+
     scriptReader = ogre_parse.reader.ReadScript()
     with open(aPath, 'r') as f:
         script = f.read()
-        print('---- contents ----\n%s\n------ end -------' % script)
+        # print('---- contents ----\n%s\n------ end -------' % script)
         try:
             res = scriptReader.parseString(script)
-            print('[%s] elements in parsing results' % len(res))
+            len_elems = len(res)
+            # print('[%s] elements in parsing results' % len_elems)
         except:
-            print('an error occurred reading: %s' % aPath)
+            print('--an error occurred reading: %s' % aPath)
+
+    return len_elems
 
 
-def main():
-    search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
+def show_stats(aFolder):
     (mats, progs, comps) = script_search(search_folder)
     print('ogre statistics, under folder, %s, \nreading files: [%s] material, [%s] program, [%s] compositor' % (search_folder, len(mats), len(progs), len(comps)))
 
-    fullpath =  os.path.join(search_folder, 'data\\Examples\\TestScene\\cageCube.material')
-    parse_script(fullpath)
-    # for m in mats:
-    #     parse_script(m)
+    len_mats = 0
+    for m in mats:
+        len_mats += parse_script(m)
+
+    len_progs = 0
+    for p in progs:
+        len_progs += parse_script(p)
+
+    len_comps = 0
+    for c in comps:
+        len_comps += parse_script(c)
+
+    print('[%s] materials, [%s] shader definitions, [%s] compositors' % (len_mats, len_progs, len_comps))
+
+    # fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\data\Examples\Agent\cargo\exports\cargo.material'
+    # parse_script(fullpath)
 
 
 if __name__ == '__main__':
-    main()
+    search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
+    show_stats(search_folder)
