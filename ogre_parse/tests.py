@@ -397,31 +397,31 @@ material NoMaterial
 
 	//technique d3d9_gbuffer
 	//{
- //       scheme deferred_gbuffer
+//       scheme deferred_gbuffer
 	//	pass
 	//	{
- //           emissive 1 0 0 0
+//           emissive 1 0 0 0
 
- //           vertex_program_ref phong_hlsl
- //           {
- //           }
+//           vertex_program_ref phong_hlsl
+//           {
+//           }
 
- //           fragment_program_ref gbuffer_hlsl
- //           {
- //           }
+//           fragment_program_ref gbuffer_hlsl
+//           {
+//           }
 	//	}
 
 	//}
 
- //   technique stencil
- //   {
- //       scheme stencil
+//   technique stencil
+//   {
+//       scheme stencil
 
- //       pass
- //       {
- //           emissive 1 0 0 1
- //       }
- //   }
+//       pass
+//       {
+//           emissive 1 0 0 1
+//       }
+//   }
 
 }
 
@@ -431,7 +431,7 @@ material Cube_OgreMax
 {
 	//technique forward_FF
 	//{
- //       scheme forward_FF
+//       scheme forward_FF
 
 	//	pass Map#682
 	//	{
@@ -445,19 +445,19 @@ material Cube_OgreMax
 	//			filtering linear linear linear
 	//		}
 
- //           //vertex_program_ref phong_1UV_fog_ver120
- //           //{
- //           //}
+//           //vertex_program_ref phong_1UV_fog_ver120
+//           //{
+//           //}
 
- //           //fragment_program_ref BP_fog_emissive_alphaRejectEmissive
- //           //{
- //           //}
+//           //fragment_program_ref BP_fog_emissive_alphaRejectEmissive
+//           //{
+//           //}
 	//	}
 	//}
 
 	//technique gbuffer
 	//{
- //       scheme deferred_gbuffer
+//       scheme deferred_gbuffer
 
 	//	pass Map#682
 	//	{
@@ -471,14 +471,14 @@ material Cube_OgreMax
 	//			filtering linear linear linear
 	//		}
 
- //           vertex_program_ref phong_1UV_hlsl
- //           {
- //           }
+//           vertex_program_ref phong_1UV_hlsl
+//           {
+//           }
 
- //           fragment_program_ref gbuffer_1UV_emissive_hlsl
- //           {
- //           }
- //       }
+//           fragment_program_ref gbuffer_1UV_emissive_hlsl
+//           {
+//           }
+//       }
 	//}
 
     technique stencil
@@ -518,42 +518,42 @@ material Cage_OgreMax
 
 	//technique d3d9_gbuffer
 	//{
- //       scheme deferred_gbuffer
+//       scheme deferred_gbuffer
 
 	//	pass
 	//	{
 	//		diffuse 0.588 0.588 0.588 1
 	//		specular 0 0 0 1 10
 
- //           vertex_program_ref phong_hlsl
- //           {
- //           }
+//           vertex_program_ref phong_hlsl
+//           {
+//           }
 
- //           fragment_program_ref gbuffer_hlsl
- //           {
- //           }
+//           fragment_program_ref gbuffer_hlsl
+//           {
+//           }
 	//	}
 
 	//}
 
 
- //   technique stencil
- //   {
- //       scheme stencil
+//   technique stencil
+//   {
+//       scheme stencil
 
- //       pass
- //       {
- //           emissive 0 0 0.5 1
+//       pass
+//       {
+//           emissive 0 0 0.5 1
 
- //           vertex_program_ref phong_1UV_fog_ver120
- //           {
- //           }
+//           vertex_program_ref phong_1UV_fog_ver120
+//           {
+//           }
 
- //           fragment_program_ref stencil_BP_fog_decal
- //           {
- //           }
- //       }
- //   }
+//           fragment_program_ref stencil_BP_fog_decal
+//           {
+//           }
+//       }
+//   }
 }
 
 
@@ -581,7 +581,7 @@ material terrain_OgreMax
 
 	//technique d3d9_gbuffer
 	//{
- //       scheme deferred_gbuffer
+//       scheme deferred_gbuffer
 
 	//	pass
 	//	{
@@ -595,13 +595,13 @@ material terrain_OgreMax
 	//			filtering linear linear linear
 	//		}
 
- //           vertex_program_ref phong_1UV_hlsl
- //           {
- //           }
+//           vertex_program_ref phong_1UV_hlsl
+//           {
+//           }
 
- //           fragment_program_ref gbuffer_1UV_decal_hlsl
- //           {
- //           }
+//           fragment_program_ref gbuffer_1UV_decal_hlsl
+//           {
+//           }
 	//	}
 
 	//}
@@ -631,7 +631,7 @@ material terrain2_OgreMax
 
 	//technique d3d9_gbuffer
 	//{
- //       scheme deferred_gbuffer
+//       scheme deferred_gbuffer
 
 	//	pass Map#686
 	//	{
@@ -643,13 +643,13 @@ material terrain2_OgreMax
 	//			filtering linear linear linear
 	//		}
 
- //           vertex_program_ref phong_1UV_hlsl
- //           {
- //           }
+//           vertex_program_ref phong_1UV_hlsl
+//           {
+//           }
 
- //           fragment_program_ref gbuffer_1UV_decal_hlsl
- //           {
- //           }
+//           fragment_program_ref gbuffer_1UV_decal_hlsl
+//           {
+//           }
 	//	}
 
 	//}
@@ -658,6 +658,9 @@ material terrain2_OgreMax
 
 
 """
+
+
+
 
 class TestScript(unittest.TestCase):
     def setUp(self):

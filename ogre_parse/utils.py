@@ -24,10 +24,8 @@ def script_search(aFolder):
 
 
 def parse_script(aPath):
-    print('attempting to read: %s' % aPath)
 
     len_elems = 0
-
     scriptReader = ogre_parse.reader.ReadScript()
     with open(aPath, 'r') as f:
         script = f.read()
@@ -35,7 +33,7 @@ def parse_script(aPath):
         try:
             res = scriptReader.parseString(script)
             len_elems = len(res)
-            # print('[%s] elements in parsing results' % len_elems)
+            print('[%s] elements in file: %s' % (len_elems, aPath))
         except:
             print('--an error occurred reading: %s' % aPath)
 

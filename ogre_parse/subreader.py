@@ -48,7 +48,22 @@ class ReadPass(ReadBase):
         self.shader_ref_ = ReadShaderReference()
 
         # --- define the pass parser
-        passPropName = oneOf('ambient diffuse specular emissive')
+        passPropNameList = '''
+        ambient diffuse specular emissive
+        scene_blend separate_scene_blend scene_blend_op separate_scene_blend_op
+        depth_check depth_write depth_func depth_bias iteration_depth_bias
+        alpha_rejection alpha_to_coverage
+        light_scissor light_clip_planes
+        illumination_stage transparent_sorting normalize_normals
+        cull_hardware cull_software
+        lighting shading
+        polygon_mode polygon_mode_overrideable
+        fog_override
+        colour_write
+        max_lights start_light iteration
+        point_size point_sprites point_size_attenuation point_size_min point_size_max
+        '''
+        passPropName = oneOf(passPropNameList)
         passPropName.setName('-Pass Prop Name-')
         passProp = Group(passPropName + propList)
         passProp.setName('-Pass Prop-')
