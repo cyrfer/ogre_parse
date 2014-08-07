@@ -2,7 +2,20 @@ __author__ = 'cyrfer'
 
 
 from pyparsing import Optional, Word, Literal, Keyword, Forward, alphas, nums, alphanums, \
-    Group, ZeroOrMore, OneOrMore, oneOf, delimitedList, cStyleComment, restOfLine, LineEnd, cppStyleComment, Combine
+    Group, ZeroOrMore, OneOrMore, oneOf, delimitedList, cStyleComment, restOfLine, LineEnd, \
+    cppStyleComment, Combine, Dict, dictOf
+
+
+def cvtInt(s, l, toks):
+    return toks[0]
+
+def cvtReal(s, l, toks):
+    return toks[0]
+
+def printAll(s, l, toks):
+    print('-----------')
+    print(toks)
+    print('-----------')
 
 
 # convenient definitions
@@ -11,10 +24,16 @@ EOL = LineEnd().suppress()
 ident = Word( alphas+"_", alphanums+"_$@#." )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
-integer = Word(nums).setName('integer')
-real = Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums))).setName('real')
+
+integer = Word(nums).setName('-integer-')
+integer.setParseAction(cvtInt)
+
+real = Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums))).setName('-real-')
+real.setParseAction(cvtReal)
+
 propVal = real | integer | ident
 propList = Group(OneOrMore(~EOL + propVal))
+# propList.setParseAction(printAll)
 
 # # convenient definitions
 # # TODO: find a way that does not pollute the global namespace
@@ -34,7 +53,7 @@ class ReadBase(object):
     def __init__(self, grammar):
         self.grammar_ = grammar
         self.debug_flag_ = False
-        self.grammar_.setDebug(False)
+        self.grammar_.setDebug(True)
 
     def getGrammar(self):
         return self.grammar_

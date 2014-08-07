@@ -1,26 +1,35 @@
 __author__ = 'cyrfer'
 
 from ogre_parse.basereader import *
+import ogre_parse.model
 
 
 class ReadTextureUnit(ReadBase):
     def __init__(self):
         # --- define the texture parser
-        texturePropName = oneOf("texture_alias texture anim_texture cubic_texture \
-                                tex_coord_set tex_address_mode tex_border_colour filtering")
-        # textureProp = texturePropName + OneOrMore(~texturePropName + ~EOL + Word(alphanums+'.'))
+        textureResourceDecl = oneOf('texture anim_texture cubic_texture')
+        textureResource = Group( textureResourceDecl + propList ).setResultsName('texture')
+
+        texturePropNameList = '''
+        texture_alias
+        tex_coord_set tex_address_mode tex_border_colour
+        filtering
+        '''
+        texturePropName = oneOf( texturePropNameList )
         texturePropName.setName('-Texture Prop Name-')
-        textureProp = Group(texturePropName + propList)
-        textureProp.setName('-Texture Prop-')
-        textureDecl = Keyword('texture_unit') + Optional(ident).suppress() + \
+        # textureProp = Group(texturePropName + propList)
+        # textureProp.setName('-Texture Prop-')
+        textureDecl = Keyword('texture_unit').suppress() + Optional(ident).setResultsName('name') + \
                         lbrace + \
-                            ZeroOrMore( textureProp ) + \
+                            (textureResource  & dictOf(texturePropName, propList).setResultsName('properties')) + \
                         rbrace
+                             # Dict( ZeroOrMore( textureProp ) )) + \
         self.texture_ = Group(textureDecl)
         self.texture_.setName('-TextureUnit-')
-        self.texture_.setResultsName('texture_unit')
+        # self.texture_.setResultsName('texture_unit')
+        # self.texture_.setParseAction(printAll)
 
-        super(ReadTextureUnit, self).__init__(self.texture_)
+        super(ReadTextureUnit, self).__init__(self.texture_.setResultsName('texture_unit'))
 
 
 class ReadShaderReference(ReadBase):
@@ -37,6 +46,8 @@ class ReadShaderReference(ReadBase):
         self.shader_ref_ = Group(shaderRefDecl)
         self.shader_ref_.setName('-Shader Ref-')
         self.shader_ref_.setResultsName('shader_ref')
+
+        self.shader_ref_.setParseAction(printAll)
 
         super(ReadShaderReference, self).__init__(self.shader_ref_)
 
@@ -67,14 +78,18 @@ class ReadPass(ReadBase):
         passPropName.setName('-Pass Prop Name-')
         passProp = Group(passPropName + propList)
         passProp.setName('-Pass Prop-')
-        passMember = passProp | self.texture_unit_.getGrammar() | self.shader_ref_.getGrammar()
+        # passMember = passProp | self.texture_unit_.getGrammar() | self.shader_ref_.getGrammar()
         passDecl = Keyword('pass').suppress() + Optional(ident).suppress() + \
                         lbrace + \
-                            ZeroOrMore(passMember) + \
+                            Dict( passProp ) + \
                         rbrace
+                            # ZeroOrMore( self.texture_unit_.getGrammar() | self.shader_ref_.getGrammar() ) + \
+                            # ZeroOrMore(passMember) + \
         self.pass_ = Group(passDecl)
         self.pass_.setName('-Pass-')
         self.pass_.setResultsName('pass')
+
+        # self.pass_.setParseAction(printAll)
 
         super(ReadPass, self).__init__(self.pass_)
 
@@ -97,6 +112,8 @@ class ReadTechnique(ReadBase):
         self.technique_ = Group(techDecl)
         self.technique_.setName('-Technique-')
         self.technique_.setResultsName('technique')
+
+        self.technique_.setParseAction(printAll)
 
         super(ReadTechnique, self).__init__(self.technique_)
 
