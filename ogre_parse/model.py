@@ -9,7 +9,6 @@ class TextureUnit(object):
         # TODO: define these names and default values
         self.properties = {}
 
-
         # initialize from the parse results if available
         if parsed:
             print('TextureUnit parsed: %s' % parsed)
@@ -18,6 +17,7 @@ class TextureUnit(object):
                 print('TextureUnit: update( {%s:%s} )' % (k,v))
                 self.properties.update( {k:v})
 
+    # return the property stored in the dictionary
     def get(self, prop_name):
         return self.properties[prop_name]
 

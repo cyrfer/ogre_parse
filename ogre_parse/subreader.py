@@ -6,10 +6,11 @@ import ogre_parse.model
 
 class ReadTextureUnit(ReadBase):
     def __init__(self):
-        # --- define the texture parser
+        # the required member
         textureResourceDecl = oneOf('texture anim_texture cubic_texture')
         textureResource = Group( textureResourceDecl + propList ).setResultsName('texture')
 
+        # the optional members
         texturePropNameList = '''
         texture_alias
         tex_coord_set tex_address_mode tex_border_colour
@@ -17,8 +18,8 @@ class ReadTextureUnit(ReadBase):
         '''
         texturePropName = oneOf( texturePropNameList )
         texturePropName.setName('-Texture Prop Name-')
-        # textureProp = Group(texturePropName + propList)
-        # textureProp.setName('-Texture Prop-')
+
+        # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident).setResultsName('name') + \
                         lbrace + \
                             (textureResource  & dictOf(texturePropName, propList).setResultsName('properties')) + \
@@ -26,8 +27,6 @@ class ReadTextureUnit(ReadBase):
                              # Dict( ZeroOrMore( textureProp ) )) + \
         self.texture_ = Group(textureDecl)
         self.texture_.setName('-TextureUnit-')
-        # self.texture_.setResultsName('texture_unit')
-        # self.texture_.setParseAction(printAll)
 
         super(ReadTextureUnit, self).__init__(self.texture_.setResultsName('texture_unit'))
 

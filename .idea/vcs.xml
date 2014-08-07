@@ -2,7 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="" />
-    <mapping directory="$PROJECT_DIR$/../OgreMaterialParser/parse_ogre" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../OgreMaterialParser/parse_ogre" vcs="" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../../../../../../../personal/code/dev/Pint/pint" vcs="Git" />
   </component>
 </project>
 

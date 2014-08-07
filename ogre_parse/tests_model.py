@@ -1,8 +1,8 @@
 __author__ = 'jgrant'
 
 import unittest
-from ogre_parse.tests_reader import *
 import ogre_parse.model
+import ogre_parse.subreader
 
 test_model_texture = """
 texture_unit albedo
@@ -18,7 +18,7 @@ class TestModel(unittest.TestCase):
     def test_texture(self):
         # obtain some parsing results
         grammar = ogre_parse.subreader.ReadTextureUnit()
-        parsed = grammar.parseString(test_texture_unit)
+        parsed = grammar.parseString(test_model_texture)
 
         # test creating the model from parsed results
         model = ogre_parse.model.TextureUnit(parsed)

@@ -15,6 +15,7 @@ texture_unit albedo
 {
     texture file.ext
     filtering none
+    tex_address_mode clamp
 }
 """
 
@@ -28,7 +29,11 @@ class TestTexture(unittest.TestCase):
 
         self.assertEqual(len_units, 1)
 
-        self.assertTrue( res.hasAttribute)
+        # why do these assert still?
+        self.assertTrue( res.get('name') )
+        self.assertTrue( res.get('texture') )
+        self.assertTrue( res.get('filtering') )
+        self.assertTrue( res.get('tex_address_mode') )
 
 
 # --------------------------------------------- #
