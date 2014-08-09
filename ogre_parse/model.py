@@ -1,6 +1,8 @@
 __author__ = 'jgrant'
 
 
+
+
 # TODO: make a member for each property in:
 # http://www.ogre3d.org/docs/manual/manual_17.html#Texture-Units
 class TextureUnit(object):
@@ -56,4 +58,6 @@ class Material(object):
 
         # TODO: define these names and default values
         self.properties = {}
+
+
 

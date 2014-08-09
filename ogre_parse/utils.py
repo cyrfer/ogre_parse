@@ -25,6 +25,7 @@ def script_search(aFolder):
 
 def parse_script(aPath):
 
+    res = None
     len_elems = 0
     scriptReader = ogre_parse.reader.ReadScript()
     with open(aPath, 'r') as f:
@@ -37,7 +38,7 @@ def parse_script(aPath):
         except:
             print('--an error occurred reading: %s' % aPath)
 
-    return len_elems
+    return res
 
 
 def show_stats(aFolder):
@@ -46,22 +47,26 @@ def show_stats(aFolder):
 
     len_mats = 0
     for m in mats:
-        len_mats += parse_script(m)
+        parsedres = parse_script(m)
+        len_progs += len(parsedres)
 
     len_progs = 0
     for p in progs:
-        len_progs += parse_script(p)
+        parsedres = parse_script(p)
+        len_mats += len(parsedres)
 
     len_comps = 0
     for c in comps:
-        len_comps += parse_script(c)
+        parsedres = parse_script(c)
+        len_comps += len(parsedres)
 
     print('[%s] materials, [%s] shader definitions, [%s] compositors' % (len_mats, len_progs, len_comps))
 
-    # fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\data\Examples\Agent\cargo\exports\cargo.material'
-    # parse_script(fullpath)
-
 
 if __name__ == '__main__':
-    search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
-    show_stats(search_folder)
+    # search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
+    # show_stats(search_folder)
+
+    fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\data\Examples\Agent\cargo\exports\cargo.material'
+    parsedres = parse_script(fullpath)
+    print( parsedres.dump(indent='- ') )

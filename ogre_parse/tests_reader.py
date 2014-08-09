@@ -8,9 +8,37 @@ import ogre_parse.subreader
 
 import pyparsing
 
+def float_eq(a, b, epsilon=0.00000001):
+    return abs(a - b) < epsilon
 
 # --------------------------------------------- #
 test_texture_unit = """
+texture_unit
+{
+    texture file.ext
+    filtering none
+}
+"""
+
+test_texture_unit_name = """
+texture_unit albedo
+{
+    texture file.ext
+    filtering none
+    tex_address_mode clamp
+}
+"""
+
+test_texture_unit_filtering = """
+texture_unit albedo
+{
+    texture file.ext
+    filtering none
+    tex_address_mode clamp
+}
+"""
+
+test_texture_unit_address_mode = """
 texture_unit albedo
 {
     texture file.ext
@@ -25,15 +53,20 @@ class TestTexture(unittest.TestCase):
 
     def test_unit(self):
         res = self.reader_.parseString(test_texture_unit)
-        len_units = len(res)
-
-        self.assertEqual(len_units, 1)
 
         # why do these assert still?
-        self.assertTrue( res.get('name') )
-        self.assertTrue( res.get('texture') )
-        self.assertTrue( res.get('filtering') )
-        self.assertTrue( res.get('tex_address_mode') )
+        self.assertEqual( res.texture_unit.name, '' )
+        self.assertEqual( res.texture_unit.resource_name, 'file.ext' )
+
+    def test_unit_filtering(self):
+        res = self.reader_.parseString(test_texture_unit_filtering)
+
+        self.assertEqual( res.texture_unit.filtering )
+
+    def test_unit_address_mode(self):
+        res = self.reader_.parseString(test_texture_unit_address_mode)
+
+        self.assertEqual( res.texture_unit.tex_address_mode, 'clamp' )
 
 
 # --------------------------------------------- #
@@ -70,8 +103,30 @@ class TestShaderRef(unittest.TestCase):
 test_pass = """
 pass
 {
-    ambient 0 0 0 1
-    diffuse 1.0 1.0 1.0 1.0
+    ambient 0.1 0.2 0.3 0.4
+    diffuse 0.5 0.6 0.7 0.8
+}
+"""
+
+test_pass_name = """
+pass aGoodName
+{
+    ambient 0.1 0.2 0.3 0.4
+    diffuse 0.5 0.6 0.7 0.8
+}
+"""
+
+test_pass_specular3 = """
+pass
+{
+    specular 0.1 0.2 0.3 25.5
+}
+"""
+
+test_pass_specular4 = """
+pass
+{
+    specular 0.1 0.2 0.3 0.4 25.5
 }
 """
 
@@ -116,6 +171,7 @@ pass
 }
 """
 
+
 class TestPass(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadPass()
@@ -123,11 +179,14 @@ class TestPass(unittest.TestCase):
     def test_pass(self):
         res = self.reader_.parseString(test_pass)
 
-        len_pass = len(res)
-        self.assertEqual(len_pass, 1)
+        self.assertTrue( float_eq(res.mpass.ambient[0], float(0.1)) )
+        self.assertTrue( float_eq(res.mpass.diffuse[0], float(0.5)) )
+        self.assertEqual( res.mpass.name, '' )
 
-        len_props = len(res[0])
-        self.assertEqual(len_props, 2)
+    def test_pass_name(self):
+        res = self.reader_.parseString(test_pass_name)
+
+        self.assertEqual( res.mpass.name, 'aGoodName')
 
     def test_pass_tex(self):
         res = self.reader_.parseString(test_pass_tex)
