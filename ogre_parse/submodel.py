@@ -3,6 +3,8 @@ __author__ = 'jgrant'
 
 from ogre_parse.basemodel import *
 
+from pyparsing import ParseException
+
 
 # should be hooked up to a 'subreader.ReadTextureUnit' instance
 class MTextureUnit(object):
@@ -10,30 +12,95 @@ class MTextureUnit(object):
         self.name = ''
         self.resource_type = 'texture'
         self.resource_name = ''
-        self.filtering = 'none'
-        self.tex_address_mode = 'wrap'
+        # self.filtering = 'none'
+        # self.tex_address_mode = 'wrap'
+        self.properties = {}
 
         if tokens:
-            print( tokens.dump('---- '))
+            print(tokens.dump('---- '))
 
-            if tokens.texture_unit.required:
-                self.resource_type = tokens.texture_unit.required.resource_type
-                self.resource_name = tokens.texture_unit.required.resource_properties.name
+            tu = tokens.texture_unit
+
+            if tu.name:
+                self.name = tu.name
+
+            if tu.required:
+                self.resource_type = tu.required.resource_type
+                self.resource_name = tu.required.resource_properties.name
+
+            if tu.properties:
+                for k,v in tu.properties.items():
+                    self.properties.update( {k : ' '.join(v)})
+
 
     def __str__(self):
         indent = '\t'
 
         repr = 'texture_unit' + self.name + '\n{\n'
         repr += indent + self.resource_type + ' ' + self.resource_name
-        repr += indent + 'filtering ' + self.filtering
-        repr += indent + 'tex_address_mode ' + self.tex_address_mode
+
+        for k,v in self.properties.items():
+            repr += str(k) + ' ' + str(v)
 
         repr += '\n}\n'
 
         return repr
 
-    # __repr__ = __str__
+    # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
+    __repr__ = __str__
 
+
+
+# should be hooked up to a 'subreader.ReadShaderReference' instance
+class MShaderRef(object):
+    def __init__(self, tokens=None):
+        self.stage = ''
+        self.resource_name = ''
+        self.param_indexed = {}
+        self.param_indexed_auto = {}
+        self.param_named = {}
+        self.param_named_auto = {}
+        self.param_shared_ref = {}
+
+        if tokens:
+            print(tokens.dump('- '))
+
+            shader = tokens.shader_ref
+
+            if shader.stage:
+                self.stage = shader.stage
+            else:
+                # how to throw exception?
+                # http://pyparsing.wikispaces.com/share/view/5613328
+                raise ParseException('ogre_parse::MShaderRef, missing shader stage, e.g. vertex_program_ref')
+
+            if shader.resource_name:
+                self.resource_name = shader.resource_name
+            else:
+                # how to throw exception?
+                # http://pyparsing.wikispaces.com/share/view/5613328
+                raise ParseException('ogre_parse::MShaderRef, missing shader resource name, e.g. myPhongShader')
+
+            if shader.param_named_auto:
+                for k in shader.param_named_auto.keys():
+                    val = ' '.join(shader.param_named_auto[k])
+                    self.param_named_auto.update({k: val})
+
+
+    def __str__(self):
+        repr = ''
+
+        repr += self.stage + ' ' + self.resource_name
+        repr += '\n{\n'
+
+        # for k,v in self.properties.items():
+        #     repr += str(k) + ' ' + str(v)
+
+        repr += '\n}\n'
+        return repr
+
+    # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
+    __repr__ = __str__
 
 
 # should be hooked up to a 'subreader.ReadPass' instance
@@ -81,6 +148,7 @@ class MPass(object):
 
         return repr
 
+    # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
     __repr__ = __str__
 
 

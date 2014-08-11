@@ -27,38 +27,34 @@ class ReadTextureUnit(ReadBase):
         filtering
         '''
         texturePropName = oneOf( texturePropNameList )
-        texturePropName.setName('-Texture Prop Name-')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
                         lbrace + \
-                            (textureResource  & dictOf(texturePropName, propList)('properties')) + \
+                            (textureResource & dictOf(texturePropName, propList)('properties')) + \
                         rbrace
-                             # Dict( ZeroOrMore( textureProp ) )) + \
-        self.texture_ = Group(textureDecl).setParseAction(MTextureUnit)
-        self.texture_.setName('-TextureUnit-')
 
-        super(ReadTextureUnit, self).__init__(self.texture_('texture_unit'))
+        texture_ = Group(textureDecl).setParseAction(MTextureUnit)
+
+        super(ReadTextureUnit, self).__init__(texture_('texture_unit'))
 
 
 class ReadShaderReference(ReadBase):
     def __init__(self):
         # --- define the shader_ref parser
-        shaderRefPropName = oneOf('param_indexed param_indexed_auto param_named param_named_auto shared_params_ref')
-        shaderRefPropName.setName('-Shader Ref Prop Name-')
-        shaderRefProp = Group(shaderRefPropName + propList)
-        shaderRefProp.setName('-Shader Ref Prop-')
-                                # Group(ZeroOrMore(shaderRefProp)) + \
-        shaderRefDecl = oneOf('vertex_program_ref fragment_program_ref') + ident + \
+        # shaderRefPropName = oneOf('param_indexed param_indexed_auto param_named param_named_auto shared_params_ref')
+
+        param_named_auto_spec = Keyword('param_named_auto').suppress() + ident
+
+        shaderRefDecl = oneOf('vertex_program_ref fragment_program_ref')('stage') + ident('resource_name') + \
                             lbrace + \
+                                dictOf( param_named_auto_spec, propList )('param_named_auto') + \
                             rbrace
-        self.shader_ref_ = Group(shaderRefDecl)
-        self.shader_ref_.setName('-Shader Ref-')
-        self.shader_ref_.setResultsName('shader_ref')
+                                # (dictOf(param_named_auto, propList('system_params'))('param_named_auto')) + \
+        shader_ref_ = Group(shaderRefDecl)
+        shader_ref_.setParseAction(MShaderRef)
 
-        self.shader_ref_.setParseAction(printAll)
-
-        super(ReadShaderReference, self).__init__(self.shader_ref_)
+        super(ReadShaderReference, self).__init__(shader_ref_('shader_ref'))
 
 
 # successful parsing produces a subreader.MPass in parsed.mpass

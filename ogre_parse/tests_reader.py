@@ -16,7 +16,6 @@ test_texture_unit = """
 texture_unit
 {
     texture file.ext
-    filtering none
 }
 """
 
@@ -29,44 +28,74 @@ texture_unit albedo
 }
 """
 
-test_texture_unit_filtering = """
-texture_unit albedo
+test_texture_unit_filtering_none = """
+texture_unit
 {
     texture file.ext
     filtering none
+}
+"""
+
+test_texture_unit_filtering_linear_linear_point = """
+texture_unit
+{
+    texture file.ext
+    filtering linear linear point
+}
+"""
+
+test_texture_unit_address_mode_clamp = """
+texture_unit
+{
+    texture file.ext
     tex_address_mode clamp
 }
 """
 
-test_texture_unit_address_mode = """
-texture_unit albedo
+test_texture_unit_texture_params = '''
+texture_unit
 {
-    texture file.ext
-    filtering none
+    texture stoplight.jpg 2d 0
     tex_address_mode clamp
+    filtering none
 }
-"""
+'''
 
 class TestTexture(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadTextureUnit()
 
-    def test_unit(self):
+    def test_texture_unit(self):
         res = self.reader_.parseString(test_texture_unit)
+        tu = res.texture_unit
 
-        # why do these assert still?
-        self.assertEqual( res.texture_unit.name, '' )
-        self.assertEqual( res.texture_unit.resource_name, 'file.ext' )
+        self.assertEqual( tu.name, '' )
+        self.assertEqual( tu.resource_name, 'file.ext' )
 
-    def test_unit_filtering(self):
-        res = self.reader_.parseString(test_texture_unit_filtering)
+    def test_texture_unit_name(self):
+        res = self.reader_.parseString(test_texture_unit_name)
+        tu = res.texture_unit
 
-        self.assertEqual( res.texture_unit.filtering )
+        self.assertEqual( tu.name, 'albedo')
+
+    def test_unit_filtering_none(self):
+        res = self.reader_.parseString(test_texture_unit_filtering_none)
+        tu = res.texture_unit
+
+        print('test: tu.properties = %s' % tu.properties )
+        self.assertEqual( tu.properties['filtering'], 'none' )
+
+    def test_unit_filtering_LLP(self):
+        res = self.reader_.parseString(test_texture_unit_filtering_linear_linear_point)
+        tu = res.texture_unit
+
+        self.assertEqual( tu.properties['filtering'], 'linear linear point' )
 
     def test_unit_address_mode(self):
-        res = self.reader_.parseString(test_texture_unit_address_mode)
+        res = self.reader_.parseString(test_texture_unit_address_mode_clamp)
+        tu = res.texture_unit
 
-        self.assertEqual( res.texture_unit.tex_address_mode, 'clamp' )
+        self.assertEqual( tu.properties['tex_address_mode'], 'clamp' )
 
 
 # --------------------------------------------- #
@@ -82,21 +111,38 @@ fragment_program_ref shaderFrag
 }
 """
 
+test_shader_ref_prop_param_named_auto = """
+fragment_program_ref shaderFrag
+{
+    param_named_auto light_spot_vs light_direction_view_space_array 4
+    param_named_auto spot_terms spotlight_params_array 4
+}
+"""
+
 class TestShaderRef(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadShaderReference()
 
-    def test_shader_vert(self):
+    def test_shader_ref_vert(self):
         res = self.reader_.parseString(test_shader_ref_vert)
+        shader = res.shader_ref
 
-        len_shaders = len(res)
-        self.assertEqual(len_shaders, 1)
+        self.assertEqual(shader.stage, 'vertex_program_ref')
+        self.assertEqual(shader.resource_name, 'shaderVert')
 
-    def test_shader_frag(self):
+    def test_shader_ref_frag(self):
         res = self.reader_.parseString(test_shader_ref_frag)
+        shader = res.shader_ref
 
-        len_shaders = len(res)
-        self.assertEqual(len_shaders, 1)
+        self.assertEqual(shader.stage, 'fragment_program_ref')
+        self.assertEqual(shader.resource_name, 'shaderFrag')
+
+    def test_shader_ref_prop_param_named_auto(self):
+        res = self.reader_.parseString(test_shader_ref_prop_param_named_auto)
+        shader = res.shader_ref
+
+        self.assertEqual(shader.param_named_auto['light_spot_vs'], 'light_direction_view_space_array 4')
+        self.assertEqual(shader.param_named_auto['spot_terms'], 'spotlight_params_array 4')
 
 
 # --------------------------------------------- #
