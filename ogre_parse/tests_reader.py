@@ -186,6 +186,21 @@ pass
 }
 """
 
+test_pass_2tex = """
+pass
+{
+    texture_unit
+    {
+        texture file01.ext
+    }
+
+    texture_unit
+    {
+        texture file02.ext
+    }
+}
+"""
+
 test_pass_2shader = """
 pass
 {
@@ -217,6 +232,25 @@ pass
 }
 """
 
+test_pass_blend = """
+pass
+{
+    scene_blend one one_minus_dest_alpha
+    separate_scene_blend one one_minus_dest_alpha one one
+    scene_blend_op subtract
+    separate_scene_blend_op reverse_subtract min
+}
+"""
+
+test_pass_depth = """
+pass
+{
+    depth_check off
+    depth_write off
+    depth_func equal
+    depth_bias 10.0 2.0
+}
+"""
 
 class TestPass(unittest.TestCase):
     def setUp(self):
@@ -237,36 +271,46 @@ class TestPass(unittest.TestCase):
     def test_pass_tex(self):
         res = self.reader_.parseString(test_pass_tex)
 
-        len_pass = len(res)
-        self.assertEqual(len_pass, 1)
-
-        len_tex = len(res[0])
+        len_tex = len(res.mpass.texture_units)
         self.assertEqual(len_tex, 1)
+
+    def test_pass_2tex(self):
+        res = self.reader_.parseString(test_pass_2tex)
+
+        len_tex = len(res.mpass.texture_units)
+        self.assertEqual(len_tex, 2)
 
     def test_pass_2shader(self):
         res = self.reader_.parseString(test_pass_2shader)
 
-        len_pass = len(res)
-        self.assertEqual(len_pass, 1)
-
-        # TODO: need a better way to obtain the shaders
-        len_shader = len(res[0])
+        len_shader = len(res.mpass.shaders)
         self.assertEqual(len_shader, 2)
 
     def test_pass_tex_2shader(self):
         res = self.reader_.parseString(test_pass_tex_2shader)
 
-        len_pass  = len(res)
-        self.assertEqual(len_pass, 1)
+        len_tex = len(res.mpass.texture_units)
+        self.assertEqual(len_tex, 1)
 
-        # # TODO: not a good way to find textures
-        # len_tex = len(res[0])
-        # self.assertEqual(len_tex, 1)
-        #
-        # # TODO: not a good way to find shaders
-        # len_shader = len(res[1])
-        # self.assertEqual(len_shader, 2)
+        len_shader = len(res.mpass.shaders)
+        self.assertEqual(len_shader, 2)
 
+    def test_pass_blend(self):
+        res = self.reader_.parseString(test_pass_blend)
+
+        self.assertEqual('one one_minus_dest_alpha', res.mpass.scene_blend)
+        self.assertEqual('one one_minus_dest_alpha one one', res.mpass.separate_scene_blend)
+        self.assertEqual('subtract', res.mpass.scene_blend_op)
+        self.assertEqual('reverse_subtract min', res.mpass.separate_scene_blend_op)
+
+    def test_pass_depth(self):
+        res = self.reader_.parseString(test_pass_depth)
+
+        self.assertEqual('off', res.mpass.depth_check)
+        self.assertEqual('off', res.mpass.depth_write)
+        self.assertEqual('equal', res.mpass.depth_func)
+        self.assertTrue( float_eq(res.mpass.depth_bias_constant, 10.0))
+        self.assertTrue( float_eq(res.mpass.depth_bias_slopescale, 2.0))
 
 # --------------------------------------------- #
 test_technique_empty = """

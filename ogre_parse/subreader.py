@@ -58,49 +58,12 @@ class ReadShaderReference(ReadBase):
 
 
 # successful parsing produces a subreader.MPass in parsed.mpass
+# format documented here:
+# http://www.ogre3d.org/docs/manual/manual_16.html#Passes
 class ReadPass(ReadBase):
     def __init__(self):
+        onoff_val_spec = oneOf('on off')
 
-        # self.texture_unit_ = ReadTextureUnit()
-        # self.shader_ref_ = ReadShaderReference()
-        #
-        # # --- define the pass parser
-        # passPropNameList = '''
-        # ambient diffuse specular emissive
-        # scene_blend separate_scene_blend scene_blend_op separate_scene_blend_op
-        # depth_check depth_write depth_func depth_bias iteration_depth_bias
-        # alpha_rejection alpha_to_coverage
-        # light_scissor light_clip_planes
-        # illumination_stage transparent_sorting normalize_normals
-        # cull_hardware cull_software
-        # lighting shading
-        # polygon_mode polygon_mode_overrideable
-        # fog_override
-        # colour_write
-        # max_lights start_light iteration
-        # point_size point_sprites point_size_attenuation point_size_min point_size_max
-        # '''
-        # passPropName = oneOf(passPropNameList)
-        # passPropName.setName('-Pass Prop Name-')
-        # passProp = Group(passPropName + propList)
-        # passProp.setName('-Pass Prop-')
-        # # passMember = passProp | self.texture_unit_.getGrammar() | self.shader_ref_.getGrammar()
-        # passDecl = Keyword('pass').suppress() + Optional(ident).suppress() + \
-        #                 lbrace + \
-        #                     Dict( passProp ) + \
-        #                 rbrace
-        #                     # ZeroOrMore( self.texture_unit_.getGrammar() | self.shader_ref_.getGrammar() ) + \
-        #                     # ZeroOrMore(passMember) + \
-        # self.pass_ = Group(passDecl)
-        # self.pass_.setName('-Pass-')
-        # self.pass_.setResultsName('pass')
-        #
-        # # self.pass_.setParseAction(printAll)
-
-        # super(ReadPass, self).__init__(self.pass_)
-
-
-        # -------------- NEW STUFF SINCE PAUL HELPED ------------ #
         # define named parsers
         color_ambient = Group(Keyword('ambient') + colorspec)('ambient')
         color_diffuse = Group(Keyword('diffuse') + colorspec)('diffuse')
@@ -109,17 +72,61 @@ class ReadPass(ReadBase):
         specularspec = (color3spec('specular') + realspec('shininess')) ^ (color4spec('specular') + realspec('shininess'))
         color_specular = Group(Keyword('specular') + specularspec)('specular')
 
-        tuspec = ReadTextureUnit().getGrammar()
+        # scene_blend
+        # TODO: add action to turn short format into long format
+        scene_blend_short = oneOf('add modulate colour_blend alpha_blend')
+        scene_blend_long_spec = oneOf('one zero dest_colour src_colour one_minus_dest_colour one_minus_src_colour dest_alpha src_alpha one_minus_dest_alpha one_minus_src_alpha')
+        scene_blend_long = scene_blend_long_spec + scene_blend_long_spec
+        scene_blend = Group(Keyword('scene_blend').suppress() + (scene_blend_short | scene_blend_long))('scene_blend')
 
-        passBody = Group( Optional(color_ambient) + \
-                          Optional(color_diffuse) + \
-                          Optional(color_specular) + \
-                          Optional(color_emissive) + \
-                          ZeroOrMore(tuspec)('texture_units')
-                        )('body')
+        # TODO: add action to turn short format into long format
+        separate_blend_short = scene_blend_short + scene_blend_short
+        separate_blend_long = scene_blend_long_spec + scene_blend_long_spec + scene_blend_long_spec + scene_blend_long_spec
+        separate_scene_blend = Group(Keyword('separate_scene_blend').suppress() + (separate_blend_short | separate_blend_long))('separate_scene_blend')
+        scene_blend_op_spec = oneOf('add subtract reverse_subtract min max')
+        scene_blend_op = Group(Keyword('scene_blend_op').suppress() + scene_blend_op_spec)('scene_blend_op')
+        separate_scene_blend_op = Group(Keyword('separate_scene_blend_op').suppress() + (scene_blend_op_spec+scene_blend_op_spec))('separate_scene_blend_op')
+
+        # depth stuff
+        depth_check = Group(Keyword('depth_check').suppress() + onoff_val_spec)('depth_check')
+        depth_write = Group(Keyword('depth_write').suppress() + onoff_val_spec)('depth_write')
+        depth_func_val_spec = oneOf('always_fail always_pass less less_equal equal not_equal greater_equal greater')
+        depth_func = Group(Keyword('depth_func').suppress() + depth_func_val_spec)('depth_func')
+        depth_bias = Group(Keyword('depth_bias').suppress() + realspec('constant') + Optional(realspec('slopescale')))('depth_bias')
+        iter_depth_bias = Group(Keyword('iteration_depth_bias').suppress() + realspec('bias'))('iteration_depth_bias')
+
+        tu = ReadTextureUnit()
+        shader = ReadShaderReference()
+
+        passBody = ( \
+                     # color
+                     Optional(color_ambient) + \
+                     Optional(color_diffuse) + \
+                     Optional(color_specular) + \
+                     Optional(color_emissive) + \
+
+                     # blend
+                     Optional(scene_blend) + \
+                     Optional(separate_scene_blend) + \
+                     Optional(scene_blend_op) + \
+                     Optional(separate_scene_blend_op) + \
+
+                     # depth
+                     Optional(depth_check) + \
+                     Optional(depth_write) + \
+                     Optional(depth_func) + \
+                     Optional(depth_bias) + \
+                     Optional(iter_depth_bias) + \
+
+                     # texture
+                     ZeroOrMore(tu.getGrammar())('texture_units') + \
+
+                     # shaders
+                     ZeroOrMore(shader.getGrammar())('shaders') \
+                   )
 
         # total parser
-        parser = Group( Keyword('pass')('type_value') + Optional(identspec('name')) + LBRACE + passBody + RBRACE)('mpass')
+        parser = Group( Keyword('pass').suppress() + Optional(identspec('name')) + LBRACE + passBody + RBRACE)('mpass')
         parser.setParseAction(MPass)
         super(ReadPass, self).__init__(parser)
         # -------------- END NEW STUFF SINCE PAUL HELPED ------------ #

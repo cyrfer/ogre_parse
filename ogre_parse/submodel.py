@@ -12,13 +12,9 @@ class MTextureUnit(object):
         self.name = ''
         self.resource_type = 'texture'
         self.resource_name = ''
-        # self.filtering = 'none'
-        # self.tex_address_mode = 'wrap'
         self.properties = {}
 
         if tokens:
-            print(tokens.dump('---- '))
-
             tu = tokens.texture_unit
 
             if tu.name:
@@ -35,7 +31,6 @@ class MTextureUnit(object):
 
     def __str__(self):
         indent = '\t'
-
         repr = 'texture_unit' + self.name + '\n{\n'
         repr += indent + self.resource_type + ' ' + self.resource_name
 
@@ -63,8 +58,6 @@ class MShaderRef(object):
         self.param_shared_ref = {}
 
         if tokens:
-            print(tokens.dump('- '))
-
             shader = tokens.shader_ref
 
             if shader.stage:
@@ -93,8 +86,8 @@ class MShaderRef(object):
         repr += self.stage + ' ' + self.resource_name
         repr += '\n{\n'
 
-        # for k,v in self.properties.items():
-        #     repr += str(k) + ' ' + str(v)
+        for k,v in self.properties.items():
+            repr += '\n' + str(k) + ' ' + str(v)
 
         repr += '\n}\n'
         return repr
@@ -107,31 +100,97 @@ class MShaderRef(object):
 class MPass(object):
     def __init__(self, tokens=None):
         self.name = ''
+
+        # color
         self.ambient = Color()
         self.emissive = Color()
         self.diffuse = Color()
         self.specular = Color()
         self.shininess = float(10.0)
 
+        # blend
+        self.scene_blend = 'one zero'
+        self.separate_scene_blend = ''
+        self.scene_blend_op = 'add'
+        self.separate_scene_blend_op = 'add add'
+
+        # depth
+        self.depth_check = 'on'
+        self.depth_write = 'on'
+        self.depth_func = 'less_equal'
+        self.iteration_depth_bias = 0.0
+        self.depth_bias_constant = 0.0
+        self.depth_bias_slopescale = 0.0
+
+        # objects
+        self.texture_units = []
+        self.shaders = []
+
         # grab parsed results
         if tokens:
+            print( tokens.dump('++ '))
+
             if tokens.mpass.name:
                 self.name = tokens.mpass.name
 
-            if tokens.mpass.body.ambient:
-                self.ambient = tokens.mpass.body.ambient.args
+            # --- color
+            if tokens.mpass.ambient:
+                self.ambient = tokens.mpass.ambient.args
 
-            if tokens.mpass.body.diffuse:
-                self.diffuse = tokens.mpass.body.diffuse.args
+            if tokens.mpass.diffuse:
+                self.diffuse = tokens.mpass.diffuse.args
 
-            if tokens.mpass.body.emissive:
-                self.emissive = tokens.mpass.body.emissive.args
+            if tokens.mpass.emissive:
+                self.emissive = tokens.mpass.emissive.args
 
-            if tokens.mpass.body.specular:
-                self.specular = tokens.mpass.body.specular.specular
+            if tokens.mpass.specular:
+                self.specular = tokens.mpass.specular.specular
 
-            if tokens.mpass.body.specular:
-                self.shininess = tokens.mpass.body.specular.shininess
+            if tokens.mpass.specular:
+                self.shininess = tokens.mpass.specular.shininess
+
+            # --- blend
+            if tokens.mpass.scene_blend:
+                self.scene_blend = ' '.join(tokens.mpass.scene_blend)
+
+            if tokens.mpass.scene_blend_op:
+                self.scene_blend_op = ' '.join(tokens.mpass.scene_blend_op)
+
+            if tokens.mpass.separate_scene_blend:
+                self.separate_scene_blend = ' '.join(tokens.mpass.separate_scene_blend)
+
+            if tokens.mpass.separate_scene_blend_op:
+                self.separate_scene_blend_op = ' '.join(tokens.mpass.separate_scene_blend_op)
+
+            # --- depth
+            if tokens.mpass.depth_check:
+                self.depth_check = ' '.join(tokens.mpass.depth_check)
+
+            if tokens.mpass.depth_write:
+                self.depth_write = ' '.join(tokens.mpass.depth_write)
+
+            if tokens.mpass.depth_func:
+                self.depth_func = ' '.join(tokens.mpass.depth_func)
+
+            if tokens.mpass.depth_bias:
+                if tokens.mpass.depth_bias.constant:
+                    self.depth_bias_constant = tokens.mpass.depth_bias.constant
+
+                if tokens.mpass.depth_bias.slopescale:
+                    self.depth_bias_slopescale = tokens.mpass.depth_bias.slopescale
+
+            if tokens.mpass.iteration_depth_bias:
+                self.iteration_depth_bias = tokens.mpass.iteration_depth_bias
+
+
+            # --- objects
+            if tokens.mpass.texture_units:
+                for tu in tokens.mpass.texture_units:
+                    self.texture_units.append( tu )
+
+            if tokens.mpass.shaders:
+                for sh in tokens.mpass.shaders:
+                    self.shaders.append( sh )
 
 
     def __str__(self):
@@ -144,7 +203,10 @@ class MPass(object):
         repr += indent + 'emissive ' + str(self.emissive) + '\n'
         repr += indent + 'specular ' + str(self.specular) + ' ' + str(self.shininess) + '\n'
 
-        repr += '}\n'
+        for tu in self.texture_units:
+            repr += str(tu)
+
+        repr += '\n}\n'
 
         return repr
 
