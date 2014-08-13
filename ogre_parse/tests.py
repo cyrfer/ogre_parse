@@ -1,9 +1,7 @@
 __author__ = 'cyrfer'
 
 import unittest
-
-import ogre_parse.tests_reader
-import ogre_parse.tests_model
+from ogre_parse.tests_reader import *
 
 # --------------------------------------------- #
 if __name__ == '__main__':
