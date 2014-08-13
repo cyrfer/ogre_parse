@@ -122,13 +122,18 @@ class MPass(object):
         self.depth_bias_constant = 0.0
         self.depth_bias_slopescale = 0.0
 
+        # alpha
+        self.alpha_rejection_function = 'always_pass'
+        self.alpha_rejection_threshold = float(0.0)
+        self.alpha_to_coverage = 'off'
+
         # objects
         self.texture_units = []
         self.shaders = []
 
         # grab parsed results
         if tokens:
-            print( tokens.dump('++ '))
+            # print( tokens.dump('++ '))
 
             if tokens.mpass.name:
                 self.name = tokens.mpass.name
@@ -181,6 +186,14 @@ class MPass(object):
 
             if tokens.mpass.iteration_depth_bias:
                 self.iteration_depth_bias = tokens.mpass.iteration_depth_bias
+
+            # --- alpha
+            if tokens.mpass.alpha_rejection:
+                self.alpha_rejection_function = tokens.mpass.alpha_rejection.function
+                self.alpha_rejection_threshold = tokens.mpass.alpha_rejection.threshold
+
+            if tokens.mpass.alpha_to_coverage:
+                self.alpha_to_coverage = ' '.join(tokens.mpass.alpha_to_coverage)
 
 
             # --- objects

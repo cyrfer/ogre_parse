@@ -95,6 +95,11 @@ class ReadPass(ReadBase):
         depth_bias = Group(Keyword('depth_bias').suppress() + realspec('constant') + Optional(realspec('slopescale')))('depth_bias')
         iter_depth_bias = Group(Keyword('iteration_depth_bias').suppress() + realspec('bias'))('iteration_depth_bias')
 
+        # alpha stuff
+        alpha_rejection_func = depth_func_val_spec('function')
+        alpha_rejection = Group(Keyword('alpha_rejection').suppress() + alpha_rejection_func + real('threshold'))('alpha_rejection')
+        alpha_to_coverage = Group(Keyword('alpha_to_coverage').suppress() + onoff_val_spec)('alpha_to_coverage')
+
         tu = ReadTextureUnit()
         shader = ReadShaderReference()
 
@@ -117,6 +122,10 @@ class ReadPass(ReadBase):
                      Optional(depth_func) + \
                      Optional(depth_bias) + \
                      Optional(iter_depth_bias) + \
+
+                     # alpha
+                     Optional(alpha_rejection) + \
+                     Optional(alpha_to_coverage) + \
 
                      # texture
                      ZeroOrMore(tu.getGrammar())('texture_units') + \

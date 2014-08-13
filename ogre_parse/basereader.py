@@ -29,14 +29,8 @@ ident = Word( alphas+"_", alphanums+"_$@#." )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
 
-integer = Word(nums).setName('-integer-')
-integer.setParseAction(cvtInt)
-
-real = Regex(r"\d+\.\d*") #Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums))).setName('-real-')
-real.setParseAction(cvtReal)
-
-propVal = real | integer | ident
-propList = Group(OneOrMore(~EOL + propVal))
+integerspec = Word(nums)
+integer = (integerspec).setParseAction(cvtInt)
 # propList.setParseAction(printAll)
 
 
@@ -47,6 +41,14 @@ EOL = LineEnd().suppress()
 # another option for floating point parsing:
 # http://pyparsing.wikispaces.com/share/view/33656348
 realspec = Regex(r"\d+\.\d*").setParseAction(lambda t: float(t[0]))
+
+real = (integerspec ^ realspec).setParseAction(lambda t: float(t[0]))
+#Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums)))
+# Regex(r"\d+\.\d*") #
+# real.setParseAction(cvtReal)
+
+propVal = real | integer | ident
+propList = Group(OneOrMore(~EOL + propVal))
 
 # colorspec = Group(~EOL + OneOrMore(realspec))('vector').setParseAction(Color)
 color3spec = Group(realspec('r') + realspec('g') + realspec('b')).setParseAction(ogre_parse.basemodel.Color)

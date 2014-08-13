@@ -252,6 +252,15 @@ pass
 }
 """
 
+test_pass_alpha = '''
+pass
+{
+    alpha_rejection greater_equal 128
+    alpha_to_coverage on
+}
+'''
+
+
 class TestPass(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadPass()
@@ -311,6 +320,14 @@ class TestPass(unittest.TestCase):
         self.assertEqual('equal', res.mpass.depth_func)
         self.assertTrue( float_eq(res.mpass.depth_bias_constant, 10.0))
         self.assertTrue( float_eq(res.mpass.depth_bias_slopescale, 2.0))
+
+    def test_pass_alpha(self):
+        res = self.reader_.parseString(test_pass_alpha)
+
+        self.assertEqual('greater_equal', res.mpass.alpha_rejection_function)
+        self.assertTrue( float_eq(128.0, res.mpass.alpha_rejection_threshold) )
+        self.assertEqual('on', res.mpass.alpha_to_coverage )
+
 
 # --------------------------------------------- #
 test_technique_empty = """
