@@ -234,23 +234,30 @@ class ReadPass(ReadBase):
 class ReadTechnique(ReadBase):
     def __init__(self):
 
-        self.pass_ = ReadPass()
+        pass_ = ReadPass()
 
         # --- define the technique parser
-        techPropName = oneOf('scheme lod_index shadow_caster_material shadow_receiver_material gpu_vendor_rule gpu_device_rule')
-        techPropName.setName('-Technique Property Name-')
-        techProp = Group(techPropName + propList)
-        techProp.setName('-Technique Property-')
-        techMember = self.pass_.getGrammar() | techProp
-        techDecl = Keyword('technique').suppress() + Optional(ident).suppress() + \
+        scheme = Group(Keyword('scheme').suppress() + identspec)('scheme')
+        lod_index = Group(Keyword('lod_index').suppress() + integer)('lod_index')
+        shadow_caster_material = Group(Keyword('shadow_caster_material').suppress() + identspec)('shadow_caster_material')
+        shadow_receiver_material = Group(Keyword('shadow_receiver_material').suppress() + identspec)('shadow_receiver_material')
+
+        inex = oneOf('include exclude')
+        gpu_vendor_rule = Group(Keyword('gpu_vendor_rule') + inex + identspec)('gpu_vendor_rule')
+        gpu_device_rule = Group(Keyword('gpu_device_rule') + inex + propList)('gpu_device_rule')
+
+        techDecl = Keyword('technique').suppress() + Optional(ident)('name') + \
                         lbrace + \
-                            ZeroOrMore( techMember ) + \
+                            Optional( scheme ) + \
+                            Optional( lod_index ) + \
+                            Optional( shadow_caster_material ) + \
+                            Optional( shadow_receiver_material ) + \
+                            ZeroOrMore( gpu_vendor_rule )('gpu_vendor_rules') + \
+                            ZeroOrMore( gpu_device_rule )('gpu_device_rules') + \
+                            OneOrMore( pass_.getGrammar() )('passes') + \
                         rbrace
-        self.technique_ = Group(techDecl)
-        self.technique_.setName('-Technique-')
-        self.technique_.setResultsName('technique')
+        technique_ = Group(techDecl)
+        technique_.setParseAction(MTechnique)
 
-        self.technique_.setParseAction(printAll)
-
-        super(ReadTechnique, self).__init__(self.technique_)
+        super(ReadTechnique, self).__init__(technique_('technique'))
 

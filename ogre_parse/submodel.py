@@ -331,50 +331,71 @@ class MPass(object):
     __repr__ = __str__
 
 
+# should be hooked up to a 'subreader.ReadTechnique' instance
+class MTechnique(object):
+    def __init__(self, tokens=None):
+        self.name = ''
+        self.scheme = ''
+        self.lod_index = int(0)
+        self.shadow_caster_material = ''
+        self.shadow_receiver_material = ''
+        self.gpu_vendor_rule = []
+        self.gpu_device_rule = []
+        self.passes = []
 
-sample_pass = '''
-pass
-{
-    ambient 0.1 0.2 0.3 0.4
-    diffuse 0.5 0.6 0.7 0.8
-    specular 0.3 0.4 0.5 0.6 21.0
-    emissive 0.9 0.0 0.1 0.2
-}
-'''
+        if tokens:
+            tech = tokens.technique
 
-sample = '''
-    ambient 0.1 0.2 0.3 0.4
-    diffuse 0.5 0.6 0.7 0.8
-    specular 0.3 0.4 0.5 0.6 22.0
-    emissive 0.9 0.0 0.1 0.2
-'''
+            if tech.name:
+                self.name = tech.name
 
-if __name__ == '__main__':
+            if tech.scheme:
+                self.scheme = ' '.join(tech.scheme)
 
-    # define color keywords
-    # AMBIENT, DIFFUSE, SPECULAR, EMISSIVE = map(Keyword, 'ambient diffuse specular emissive'.split())
+            if tech.lod_index:
+                self.lod_index = tech.lod_index[0]
 
-# '''
-#     scene_blend separate_scene_blend
-#     depth_check depth_write depth_func depth_bias iteration_depth_bias
-#     alpha_rejection alpha_to_coverage
-#     light_scissor light_clip_planes
-#     illumination_stage transparent_sorting
-#     nomralize_normals
-#     cull_hardware cull_software
-#     lighting shading
-#     polygon_mode polygon_mode_overrideable
-#     fog_override
-#     colour_write
-#     max_lights start_light iteration
-#     point_size point_sprites point_size_attenuation point_size_min point_size_max
-# '''
+            if tech.shadow_caster_material:
+                self.shadow_caster_material = ' '.join(tech.shadow_caster_material)
 
-    # parser.setDebug(True)
+            if tech.shadow_receiver_material:
+                self.shadow_receiver_material = ' '.join(tech.shadow_receiver_material)
 
-    # test it
-    # parsed = parser.parseString(sample)
-    parsed = parser.parseString(sample_pass)
-    print( 'type(parsed.mpass) = %s' % type(parsed.mpass) )# parsed.dump(indent='-///- ')
-    print( 'val of mpass = \n%s' % parsed.mpass )
+            if tech.gpu_vendor_rules:
+                for vr in tech.gpu_vendor_rules:
+                    self.gpu_vendor_rule.append( vr )
+
+            if tech.gpu_device_rules:
+                for dr in tech.gpu_device_rules:
+                    self.gpu_device_rule.append( dr )
+
+            if tech.passes:
+                for p in tech.passes:
+                    self.passes.append( p )
+
+
+    def __str__(self):
+        indent = '    '
+
+        repr = ''
+        repr += '\n' + indent + 'technique ' + self.name
+        repr += '\n' + indent + '{\n'
+
+        if self.scheme:
+            repr += '\n' + 2*indent + 'scheme ' + self.scheme
+
+        if self.lod_index != 0:
+            repr += '\n' + 2*indent + 'lod_index ' + str(self.lod_index)
+
+        if self.shadow_caster_material:
+            repr += '\n' + 2*indent + 'shadow_caster_material ' + self.shadow_caster_material
+
+        if self.shadow_receiver_material:
+            repr += '\n' + 2*indent + 'shadow_receiver_material ' + self.shadow_receiver_material
+
+        repr += '\n' + indent + '}\n'
+
+        return repr
+
+    __repr__ = __str__
 

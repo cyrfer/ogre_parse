@@ -521,17 +521,6 @@ technique
 }
 """
 
-test_technique_lod = """
-technique
-{
-    lod_index 4
-
-    pass
-    {
-    }
-}
-"""
-
 test_technique_scheme = """
 technique
 {
@@ -543,6 +532,29 @@ technique
 }
 """
 
+test_technique_lod = """
+technique
+{
+    lod_index 4
+
+    pass
+    {
+    }
+}
+"""
+
+test_technique_shadow = '''
+technique
+{
+    shadow_caster_material castThatShadow
+    shadow_receiver_material receiveThisShadow
+
+    pass
+    {
+    }
+}
+'''
+
 class TestTechnique(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadTechnique()
@@ -552,33 +564,31 @@ class TestTechnique(unittest.TestCase):
 
     def test_technique(self):
         res = self.reader_.parseString(test_technique)
-        len_tech = len(res)
-        self.assertEqual(len_tech, 1)
 
-        len_passes = len(res[0])
-        self.assertEqual(len_passes, 1)
+        len_passes = len(res.technique.passes)
+        self.assertEqual(1, len_passes)
 
     def test_technique_2pass(self):
         res = self.reader_.parseString(test_technique_2pass)
 
-        len_tech = len(res)
-        self.assertEqual(len_tech, 1)
-
-        len_passes = len(res[0])
-        self.assertEqual(len_passes, 2)
-
-    def test_technique_prop(self):
-        res = self.reader_.parseString(test_technique_lod)
-
-        # TODO: need a better way to retrieve properties and passes
-        len_props  = len(res[0])
-        self.assertEqual(len_props, 2) # should only be '1' for properties, and '1' for passes
+        len_passes = len(res.technique.passes)
+        self.assertEqual(2, len_passes)
 
     def test_technique_scheme(self):
         res = self.reader_.parseString(test_technique_scheme)
 
-        len_elements = len(res[0])
-        self.assertEqual(len_elements, 2)
+        self.assertEqual('catsAndDogs', res.technique.scheme)
+
+    def test_technique_lod(self):
+        res = self.reader_.parseString(test_technique_lod)
+
+        self.assertEqual(4, res.technique.lod_index)
+
+    def test_technique_shadow(self):
+        res = self.reader_.parseString(test_technique_shadow)
+
+        self.assertEqual('castThatShadow', res.technique.shadow_caster_material)
+        self.assertEqual('receiveThisShadow', res.technique.shadow_receiver_material)
 
 
 # --------------------------------------------- #
