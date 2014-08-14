@@ -62,8 +62,6 @@ class ReadShaderReference(ReadBase):
 # http://www.ogre3d.org/docs/manual/manual_16.html#Passes
 class ReadPass(ReadBase):
     def __init__(self):
-        onoff_val_spec = oneOf('on off')
-
         # define named parsers
         color_ambient = Group(Keyword('ambient') + colorspec)('ambient')
         color_diffuse = Group(Keyword('diffuse') + colorspec)('diffuse')

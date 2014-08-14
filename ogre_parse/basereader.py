@@ -54,6 +54,7 @@ colorspec = ( color3spec ^ color4spec )('args')
 identspec = Word( alphas+"_", alphanums+"_$@#." )
 
 truefalse_spec = oneOf('true false')
+onoff_val_spec = oneOf('on off')
 
 
 # on 8/8/2014, taken from:

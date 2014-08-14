@@ -593,7 +593,7 @@ class TestTechnique(unittest.TestCase):
 
 # --------------------------------------------- #
 test_mat = """
-material
+material awesomeMaterial
 {
     technique
     {
@@ -605,13 +605,13 @@ material
 """
 
 test_mat_no_tech = """
-material
+material someName
 {
 }
 """
 
 test_mat_2tech = """
-material
+material mat2tech
 {
     technique
     {
@@ -629,10 +629,11 @@ material
 }
 """
 
-test_mat_prop_tech_prop = """
-material
+test_mat_lod = """
+material matLods
 {
-    lod_strategy Distance
+    lod_strategy DistanceCustom
+    lod_values 0 1 2
 
     technique
     {
@@ -640,10 +641,39 @@ material
         {
         }
     }
-
-    receive_shadows on
 }
 """
+
+test_mat_shadows = '''
+material matShadows
+{
+    receive_shadows off
+    transparency_casts_shadows on
+
+    technique
+    {
+        pass
+        {
+        }
+    }
+}
+'''
+
+test_mat_texture_alias = '''
+material matTextureAlias
+{
+    set_texture_alias a z
+    set_texture_alias b y
+    set_texture_alias c x
+
+    technique
+    {
+        pass
+        {
+        }
+    }
+}
+'''
 
 class TestMaterial(unittest.TestCase):
     def setUp(self):
@@ -652,24 +682,35 @@ class TestMaterial(unittest.TestCase):
     def test_mat(self):
         res = self.reader_.parseString(test_mat)
 
-        len_mat = len(res)
-        self.assertEqual(len_mat, 1)
+        self.assertEqual('awesomeMaterial', res.material.name)
+        self.assertEqual(1, len(res.material.techniques))
 
     def test_mat_empty(self):
         self.assertRaises(pyparsing.ParseBaseException, self.reader_.parseString, test_mat_no_tech)
-        # res = self.reader_.parseString(test_mat_no_tech)
 
     def test_mat_2tech(self):
         res = self.reader_.parseString(test_mat_2tech)
 
-        len_elements = len(res)
-        self.assertEqual(len_elements, 2)
+        self.assertEqual(2, len(res.material.techniques))
 
-    def test_mat_prop_tech_prop(self):
-        res = self.reader_.parseString(test_mat_prop_tech_prop)
+    def test_mat_lod(self):
+        res = self.reader_.parseString(test_mat_lod)
 
-        len_elements = len(res)
-        self.assertEqual(len_elements, 3)
+        self.assertEqual('DistanceCustom', res.material.lod_strategy)
+        self.assertEqual([0,1,2], res.material.lod_values)
+
+    def test_mat_shadows(self):
+        res = self.reader_.parseString(test_mat_shadows)
+
+        self.assertEqual('off', res.material.receive_shadows)
+        self.assertEqual('on', res.material.transparency_casts_shadows)
+
+    def test_mat_texture_alias(self):
+        res = self.reader_.parseString(test_mat_texture_alias)
+
+        self.assertEqual('z', res.material.texture_alias['a'])
+        self.assertEqual('y', res.material.texture_alias['b'])
+        self.assertEqual('x', res.material.texture_alias['c'])
 
 
 # --------------------------------------------- #

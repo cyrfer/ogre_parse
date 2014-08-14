@@ -15,24 +15,33 @@ __author__ = 'cyrfer'
 
 from ogre_parse.basereader import *
 import ogre_parse.subreader
-
+from ogre_parse.model import *
 
 # grammar to parse materials
 class ReadMaterial(ReadBase):
     def __init__(self):
-        self.technique_ = ogre_parse.subreader.ReadTechnique()
+        technique_ = ogre_parse.subreader.ReadTechnique()
 
         # --- define the material parser
-        matPropName = oneOf('lod_strategy lod_values receive_shadows transparency_casts_shadows set_texture_alias')
-        matProp = Group(matPropName  + propList)
-        matMember = self.technique_.getGrammar() | matProp
-        matDecl = Keyword('material').suppress() + Optional(ident).suppress() + \
-                        lbrace + \
-                            ZeroOrMore( matMember ) + \
-                        rbrace
-        self.material_ = matDecl
-        self.material_.setName('-Material-')
-        super(ReadMaterial, self).__init__(self.material_)
+        lod_strategy = Group(Keyword('lod_strategy').suppress() + ident)('lod_strategy')
+        lod_values = Group(Keyword('lod_values').suppress() + OneOrMore(integer))('lod_values')
+        receive_shadows = Group(Keyword('receive_shadows').suppress() + onoff_val_spec)('receive_shadows')
+        transparency_casts_shadows = Group(Keyword('transparency_casts_shadows').suppress() + onoff_val_spec)('transparency_casts_shadows')
+        set_texture_alias_key = Keyword('set_texture_alias').suppress() + identspec
+        set_texture_alias_val = identspec
+
+        matDecl = Keyword('material').suppress() + ident('name') + \
+                    lbrace + \
+                        Optional(lod_strategy) + \
+                        Optional(lod_values) + \
+                        Optional(receive_shadows) + \
+                        Optional(transparency_casts_shadows) + \
+                        dictOf(set_texture_alias_key, set_texture_alias_val)('texture_alias') + \
+                        OneOrMore( technique_.getGrammar() )('techniques') + \
+                    rbrace
+        material_ = Group(matDecl)('material')
+        material_.setParseAction(Material)
+        super(ReadMaterial, self).__init__(material_)
 
 
 # grammar to parse shader declarations
