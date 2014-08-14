@@ -69,7 +69,7 @@ class ReadPass(ReadBase):
         color_diffuse = Group(Keyword('diffuse') + colorspec)('diffuse')
         color_emissive = Group(Keyword('emissive') + colorspec)('emissive')
 
-        specularspec = (color3spec('specular') + realspec('shininess')) ^ (color4spec('specular') + realspec('shininess'))
+        specularspec = (color3spec('specular') + real('shininess')) ^ (color4spec('specular') + real('shininess'))
         color_specular = Group(Keyword('specular') + specularspec)('specular')
 
         # scene_blend
@@ -92,13 +92,67 @@ class ReadPass(ReadBase):
         depth_write = Group(Keyword('depth_write').suppress() + onoff_val_spec)('depth_write')
         depth_func_val_spec = oneOf('always_fail always_pass less less_equal equal not_equal greater_equal greater')
         depth_func = Group(Keyword('depth_func').suppress() + depth_func_val_spec)('depth_func')
-        depth_bias = Group(Keyword('depth_bias').suppress() + realspec('constant') + Optional(realspec('slopescale')))('depth_bias')
-        iter_depth_bias = Group(Keyword('iteration_depth_bias').suppress() + realspec('bias'))('iteration_depth_bias')
+        depth_bias = Group(Keyword('depth_bias').suppress() + real('constant') + Optional(real('slopescale')))('depth_bias')
+        iter_depth_bias = Group(Keyword('iteration_depth_bias').suppress() + real('bias'))('iteration_depth_bias')
 
         # alpha stuff
         alpha_rejection_func = depth_func_val_spec('function')
         alpha_rejection = Group(Keyword('alpha_rejection').suppress() + alpha_rejection_func + real('threshold'))('alpha_rejection')
         alpha_to_coverage = Group(Keyword('alpha_to_coverage').suppress() + onoff_val_spec)('alpha_to_coverage')
+
+        # light_scissor
+        light_scissor = Group(Keyword('light_scissor').suppress() + onoff_val_spec)('light_scissor')
+        light_clip_planes = Group(Keyword('light_clip_planes').suppress() + onoff_val_spec)('light_clip_planes')
+
+        # other
+        illum_stage_val = oneOf('ambient per_light decal')
+        illumination_stage = Group(Keyword('illumination_stage').suppress() + illum_stage_val)('illumination_stage')
+        onoffforce_val_spec = oneOf('on off force')
+        transparent_sorting = Group(Keyword('transparent_sorting').suppress() + onoffforce_val_spec)('transparent_sorting')
+        normalise_normals = Group(Keyword('normalise_normals').suppress() + onoff_val_spec)('normalise_normals')
+
+        # cull
+        cull_hardware = Group(Keyword('cull_hardware').suppress() + oneOf('clockwise anticlockwise none'))('cull_hardware')
+        cull_software = Group(Keyword('cull_software').suppress() + oneOf('back front none'))('cull_software')
+
+        # other
+        lighting = Group(Keyword('lighting').suppress() + onoff_val_spec)('lighting')
+        shading = Group(Keyword('shading').suppress() + oneOf('flat gouraud phong'))('shading')
+        polygon_mode = Group(Keyword('polygon_mode').suppress() + oneOf('solid wireframe points'))('polygon_mode')
+        polygon_mode_overrideable = Group(Keyword('polygon_mode_overrideable').suppress() + truefalse_spec)('polygon_mode_overrideable')
+        fog_override_type = oneOf('none linear exp exp2')
+
+        # must define number spec here because
+        # something is wrong with the specs for number types at this point (real, integer)
+        # and they are returning a number and not a string.
+        fog_int = Word(nums)
+        fog_real = Regex(r"\d+\.\d*")
+        fog_num = fog_int ^ fog_real
+
+        fog_override_colour = fog_num + fog_num + fog_num
+        fog_override_args = fog_override_type('type') + fog_override_colour('colour') + fog_num('density') + fog_num('start') + fog_num('end')
+        fog_override = Group(Keyword('fog_override').suppress() + truefalse_spec('enabled') + Optional(fog_override_args))('fog_override')
+
+        colour_write = Group(Keyword('colour_write').suppress() + onoff_val_spec)('colour_write')
+
+        start_light = Group(Keyword('start_light').suppress() + integer)('start_light')
+        max_lights = Group(Keyword('max_lights').suppress() + integer)('max_lights')
+
+        light_type_spec = oneOf('point directional spot')
+
+        iteration_format1 = oneOf('once once_per_light') + Optional(light_type_spec)
+        iteration_format2 = integerspec + Optional(Keyword('per_light') + light_type_spec)
+        iteration_format3 = integerspec + Optional(Keyword('per_n_lights') + integerspec + Optional(light_type_spec))
+        iteration_args = (iteration_format1 ^ iteration_format2 ^ iteration_format3)
+        iteration = Group(Keyword('iteration').suppress() + iteration_args)('iteration')
+
+        point_size = Group(Keyword('point_size').suppress() + real)('point_size')
+        point_sprites = Group(Keyword('point_sprites').suppress() + onoff_val_spec)('point_sprites')
+        attenuation_spec = oneOf('constant linear quadratic')
+        point_size_attenuation = Group(Keyword('point_size_attenuation').suppress() + onoff_val_spec('enabled') + Optional(attenuation_spec)('model'))('point_size_attenuation')
+        point_size_min = Group(Keyword('point_size_min').suppress() + real)('point_size_min')
+        point_size_max = Group(Keyword('point_size_max').suppress() + real)('point_size_max')
+
 
         tu = ReadTextureUnit()
         shader = ReadShaderReference()
@@ -126,6 +180,41 @@ class ReadPass(ReadBase):
                      # alpha
                      Optional(alpha_rejection) + \
                      Optional(alpha_to_coverage) + \
+
+                     # light scissor
+                     Optional(light_scissor) + \
+                     Optional(light_clip_planes) + \
+
+                     # other
+                     Optional(illumination_stage) + \
+                     Optional(transparent_sorting) + \
+                     Optional(normalise_normals) + \
+
+                     # cull
+                     Optional(cull_hardware) + \
+                     Optional(cull_software) + \
+
+                     # lighting
+                     Optional(lighting) + \
+                     Optional(shading) + \
+
+                     # polygon
+                     Optional(polygon_mode) + \
+                     Optional(polygon_mode_overrideable) + \
+
+                     # other
+                     Optional(fog_override) + \
+                     Optional(colour_write) + \
+                     Optional(start_light) + \
+                     Optional(max_lights) + \
+                     Optional(iteration) + \
+
+                     # point
+                     Optional(point_size) + \
+                     Optional(point_sprites) + \
+                     Optional(point_size_attenuation) + \
+                     Optional(point_size_min) + \
+                     Optional(point_size_max) + \
 
                      # texture
                      ZeroOrMore(tu.getGrammar())('texture_units') + \

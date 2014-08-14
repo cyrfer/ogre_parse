@@ -10,11 +10,6 @@ from pyparsing import *
 # import ogre_parse.model
 import ogre_parse.basemodel
 
-def cvtInt(s, l, toks):
-    return toks[0]
-
-def cvtReal(s, l, toks):
-    return toks[0]
 
 def printAll(s, l, toks):
     print('-----------')
@@ -30,7 +25,8 @@ lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
 
 integerspec = Word(nums)
-integer = (integerspec).setParseAction(cvtInt)
+integer = Word(nums)
+integer.setParseAction(lambda t: int(t[0]))
 # propList.setParseAction(printAll)
 
 
@@ -40,21 +36,25 @@ EOL = LineEnd().suppress()
 
 # another option for floating point parsing:
 # http://pyparsing.wikispaces.com/share/view/33656348
-realspec = Regex(r"\d+\.\d*").setParseAction(lambda t: float(t[0]))
+realspec = Regex(r"\d+\.\d*")
+    # Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums)))
 
-real = (integerspec ^ realspec).setParseAction(lambda t: float(t[0]))
+int_or_real_spec = integerspec ^ realspec
+real = (int_or_real_spec).setParseAction(lambda t: float(t[0]))
 #Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums)))
 # Regex(r"\d+\.\d*") #
-# real.setParseAction(cvtReal)
 
-propVal = real | integer | ident
+propVal = realspec | integerspec | ident
 propList = Group(OneOrMore(~EOL + propVal))
 
 # colorspec = Group(~EOL + OneOrMore(realspec))('vector').setParseAction(Color)
-color3spec = Group(realspec('r') + realspec('g') + realspec('b')).setParseAction(ogre_parse.basemodel.Color)
-color4spec = Group(realspec('r') + realspec('g') + realspec('b') + realspec('a')).setParseAction(ogre_parse.basemodel.Color)
+color3spec = Group(real('r') + real('g') + real('b')).setParseAction(ogre_parse.basemodel.Color)
+color4spec = Group(real('r') + real('g') + real('b') + real('a')).setParseAction(ogre_parse.basemodel.Color)
 colorspec = ( color3spec ^ color4spec )('args')
 identspec = Word( alphas+"_", alphanums+"_$@#." )
+
+truefalse_spec = oneOf('true false')
+
 
 # on 8/8/2014, taken from:
 # http://www.ogre3d.org/docs/manual/manual_17.html#texture

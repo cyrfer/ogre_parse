@@ -75,6 +75,7 @@ class MShaderRef(object):
                 raise ParseException('ogre_parse::MShaderRef, missing shader resource name, e.g. myPhongShader')
 
             if shader.param_named_auto:
+                print('shader.param_named_auto = %s ' % shader.param_named_auto)
                 for k in shader.param_named_auto.keys():
                     val = ' '.join(shader.param_named_auto[k])
                     self.param_named_auto.update({k: val})
@@ -86,7 +87,8 @@ class MShaderRef(object):
         repr += self.stage + ' ' + self.resource_name
         repr += '\n{\n'
 
-        for k,v in self.properties.items():
+        # show all the 'auto' params
+        for k,v in self.param_named_auto.items():
             repr += '\n' + str(k) + ' ' + str(v)
 
         repr += '\n}\n'
@@ -127,7 +129,41 @@ class MPass(object):
         self.alpha_rejection_threshold = float(0.0)
         self.alpha_to_coverage = 'off'
 
-        # objects
+        # light scissor
+        self.light_scissor = 'off'
+        self.light_clip_planes = 'off'
+
+        # other
+        self.illumination_stage = 'none'
+        self.normalise_normals = 'off'
+        self.transparent_sorting = 'on'
+
+        # cull
+        self.cull_hardware = 'clockwise'
+        self.cull_software = 'back'
+
+        # other
+        self.lighting = 'on'
+        self.shading = 'gouraud'
+        self.polygon_mode = 'solid'
+        self.polygon_mode_overrideable = 'true'
+        self.fog_override = 'false'
+        self.colour_write = 'on'
+        self.start_light = int(0)
+        self.max_lights = int(8)
+
+        # iteration
+        self.iteration = 'once'
+
+        # points
+        self.point_size = float(1.0)
+        self.point_sprites = 'off'
+        self.point_size_attenuation = 'off'
+        self.point_size_min = float(0.0)
+        self.point_size_max = float(1.0)
+
+
+        # --- objects ---
         self.texture_units = []
         self.shaders = []
 
@@ -194,6 +230,74 @@ class MPass(object):
 
             if tokens.mpass.alpha_to_coverage:
                 self.alpha_to_coverage = ' '.join(tokens.mpass.alpha_to_coverage)
+
+            # --- light scissor
+            if tokens.mpass.light_scissor:
+                self.light_scissor = ' '.join(tokens.mpass.light_scissor)
+
+            if tokens.mpass.light_clip_planes:
+                self.light_clip_planes = ' '.join(tokens.mpass.light_clip_planes)
+
+            # --- other
+            if tokens.mpass.illumination_stage:
+                self.illumination_stage = ' '.join(tokens.mpass.illumination_stage)
+
+            if tokens.mpass.normalise_normals:
+                self.normalise_normals = ' '.join(tokens.mpass.normalise_normals)
+
+            if tokens.mpass.transparent_sorting:
+                self.transparent_sorting = ' '.join(tokens.mpass.transparent_sorting)
+
+            # --- cull
+            if tokens.mpass.cull_hardware:
+                self.cull_hardware = ' '.join(tokens.mpass.cull_hardware)
+
+            if tokens.mpass.cull_software:
+                self.cull_software = ' '.join(tokens.mpass.cull_software)
+
+            # --- other
+            if tokens.mpass.lighting:
+                self.lighting = ' '.join(tokens.mpass.lighting)
+
+            if tokens.mpass.shading:
+                self.shading = ' '.join(tokens.mpass.shading)
+
+            if tokens.mpass.polygon_mode:
+                self.polygon_mode = ' '.join(tokens.mpass.polygon_mode)
+
+            if tokens.mpass.polygon_mode_overrideable:
+                self.polygon_mode_overrideable = ' '.join(tokens.mpass.polygon_mode_overrideable)
+
+            if tokens.mpass.fog_override:
+                self.fog_override = ' '.join(tokens.mpass.fog_override)
+
+            if tokens.mpass.colour_write:
+                self.colour_write = ' '.join(tokens.mpass.colour_write)
+
+            if tokens.mpass.start_light:
+                self.start_light = tokens.mpass.start_light[0]
+
+            if tokens.mpass.max_lights:
+                self.max_lights = tokens.mpass.max_lights[0]
+
+            if tokens.mpass.iteration:
+                self.iteration = ' '.join(tokens.mpass.iteration)
+
+            # --- point
+            if tokens.mpass.point_size:
+                self.point_size = tokens.mpass.point_size[0]
+
+            if tokens.mpass.point_sprites:
+                self.point_sprites = ' '.join(tokens.mpass.point_sprites)
+
+            if tokens.mpass.point_size_attenuation:
+                self.point_size_attenuation = ' '.join(tokens.mpass.point_size_attenuation)
+
+            if tokens.mpass.point_size_min:
+                self.point_size_min = tokens.mpass.point_size_min[0]
+
+            if tokens.mpass.point_size_max:
+                self.point_size_max = tokens.mpass.point_size_max[0]
 
 
             # --- objects
