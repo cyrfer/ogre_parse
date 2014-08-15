@@ -86,13 +86,20 @@ test_specular_4 = 'specular 0.1 0.2 0.3 1.0 25.0'
 
 class TestColorParsers(unittest.TestCase):
     def setUp(self):
-        # define parsers
-        self.ambient = Group(Keyword('ambient').suppress() + ogre_parse.basereader.colorspec)('ambient')
-        self.diffuse = Group(Keyword('diffuse').suppress() + ogre_parse.basereader.colorspec)('diffuse')
-        self.emissive = Group(Keyword('emissive').suppress() + ogre_parse.basereader.colorspec)('emissive')
+        realspec = Regex(r"\d+\.\d*")
+        integerspec = Word(nums)
+        real = (integerspec ^ realspec).setParseAction(lambda t: float(t[0]))
 
-        specularspec = (ogre_parse.basereader.color3spec('color') + ogre_parse.basereader.real('shininess')) \
-                       ^ (ogre_parse.basereader.color4spec('color') + ogre_parse.basereader.real('shininess'))
+        color3spec = Group(real('r') + real('g') + real('b')).setParseAction(ogre_parse.basemodel.Color)
+        color4spec = Group(real('r') + real('g') + real('b') + real('a')).setParseAction(ogre_parse.basemodel.Color)
+        colorspec = ( color3spec ^ color4spec )('args')
+
+        # define parsers
+        self.ambient = Group(Keyword('ambient').suppress() + colorspec)('ambient')
+        self.diffuse = Group(Keyword('diffuse').suppress() + colorspec)('diffuse')
+        self.emissive = Group(Keyword('emissive').suppress() + colorspec)('emissive')
+
+        specularspec = (color3spec('color') + real('shininess')) ^ (color4spec('color') + real('shininess'))
         self.specular = Group(Keyword('specular').suppress() + specularspec)('specular')
 
     def test_color_3(self):
@@ -101,7 +108,6 @@ class TestColorParsers(unittest.TestCase):
         emi3 = self.emissive.parseString(test_emissive_3)
         spe3 = self.specular.parseString(test_specular_3)
 
-        # print('constructing test object')
         c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
 
         print('amb3 = %s ' % amb3)
@@ -109,6 +115,7 @@ class TestColorParsers(unittest.TestCase):
         print('emi3 = %s ' % emi3)
         print('spe3 = %s ' % spe3)
 
+        # desired usage in comments
         self.assertEqual(c, amb3[0][0]) # amb3.ambient
         self.assertEqual(c, dif3[0][0]) # dif3.diffuse
         self.assertEqual(c, emi3[0][0]) # emi3.emissive
@@ -121,7 +128,6 @@ class TestColorParsers(unittest.TestCase):
         emi4 = self.emissive.parseString(test_emissive_4)
         spe4 = self.specular.parseString(test_specular_4)
 
-        # print('constructing test object')
         c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
 
         print('amb4 = %s ' % amb4)
@@ -129,6 +135,7 @@ class TestColorParsers(unittest.TestCase):
         print('emi4 = %s ' % emi4)
         print('spe4 = %s ' % spe4)
 
+        # desired usage in comments
         self.assertEqual(c, amb4[0][0]) # amb4.ambient
         self.assertEqual(c, dif4[0][0]) # dif4.diffuse
         self.assertEqual(c, emi4[0][0]) # emi4.emissive
