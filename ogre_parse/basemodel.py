@@ -29,11 +29,11 @@ class Color(object):
 
     def __eq__(self, other):
         if not other:
-            print('omg not other')
+            print('ogre_parse.basemodel.Color: why are we comparing with _%s_?' % other)
             return False
 
         if len(other)<4:
-            print('omg len(other)=%s' % len(other))
+            print('ogre_parse.basemodel.Color: len(other)=%s' % len(other))
             return False
 
         res = self.vector[0] == other[0] \
