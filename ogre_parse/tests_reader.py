@@ -5,11 +5,115 @@ import unittest
 # same imports as client code
 import ogre_parse.reader
 import ogre_parse.subreader
+import ogre_parse.basereader
+import ogre_parse.basemodel
 
 import pyparsing
+from pyparsing import *
+import math
 
-def float_eq(a, b, epsilon=0.00000001):
-    return abs(a - b) < epsilon
+def float_eq(a, b, epsilon=1e-7):
+    # print('float_eq: type(a)=%s, type(b)=%s' % (type(a), type(b)))
+    # print('float_eq(%s, %s)' % (a,b))
+    diff_val = math.fabs(a - b)
+    # print('float_eq: diff_val = %s' % diff_val)
+    return  diff_val < epsilon
+
+
+# --------------------------------------------- #
+
+test_color_3 = '0.1 0.2 0.3'
+test_color_4 = '0.1 0.2 0.3 0.4'
+
+class TestColor(unittest.TestCase):
+    def setUp(self):
+        self.reader_ = ogre_parse.basereader.colorspec
+
+    def test_color_constructor(self):
+        c = ogre_parse.basemodel.Color([[1, 2, 3]])
+
+        self.assertEqual(1, c[0])
+        self.assertEqual(2, c[1])
+        self.assertEqual(3, c[2])
+
+    def test_color_op_bracket(self):
+        c = ogre_parse.basemodel.Color()
+
+        c[0] = 0.5
+        c[1] = 0.6
+        c[2] = 0.7
+        c[3] = 0.8
+
+        self.assertTrue(float_eq(0.5, c[0]))
+        self.assertTrue(float_eq(0.6, c[1]))
+        self.assertTrue(float_eq(0.7, c[2]))
+        self.assertTrue(float_eq(0.8, c[3]))
+
+    def test_color_op_eq_ne(self):
+        c = ogre_parse.basemodel.Color([[1.0, 2.0, 3.0, 4.0]])
+
+        self.assertTrue(c == [1.0, 2.0, 3.0, 4.0])
+        self.assertTrue(c != [0.0, 0.25, 0.5, 0.75])
+
+        cc = ogre_parse.basemodel.Color([[1.0, 2.0, 3.0, 4.0]])
+        self.assertEqual(c, cc)
+
+
+    def test_color_3(self):
+        res = self.reader_.parseString(test_color_3)
+
+        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3]])
+        # self.assertEqual(c, res[0])
+        self.assertEqual(c, res.args)
+
+    def test_color_4(self):
+        res = self.reader_.parseString(test_color_4)
+
+        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 0.4]])
+        # self.assertEqual(c, res[0])
+        self.assertEqual(c, res.args)
+
+# --------------------------------------------- #
+test_ambient_3 = 'ambient 0.1 0.2 0.3'
+test_diffuse_3 = 'diffuse 0.1 0.2 0.3'
+test_emissive_3 = 'emissive 0.1 0.2 0.3'
+test_specular_3 = 'specular 0.1 0.2 0.3 25.0'
+
+test_ambient_4 = 'ambient 0.1 0.2 0.3 1.0'
+test_diffuse_4 = 'diffuse 0.1 0.2 0.3 1.0'
+test_emissive_4 = 'emissive 0.1 0.2 0.3 1.0'
+test_specular_4 = 'specular 0.1 0.2 0.3 1.0 25.0'
+
+class TestColorParsers(unittest.TestCase):
+    def setUp(self):
+        # define parsers
+        self.ambient = Group(Keyword('ambient').suppress() + ogre_parse.basereader.colorspec)('ambient')
+        self.diffuse = Group(Keyword('diffuse').suppress() + ogre_parse.basereader.colorspec)('diffuse')
+        self.emissive = Group(Keyword('emissive').suppress() + ogre_parse.basereader.colorspec)('emissive')
+
+        specularspec = (ogre_parse.basereader.color3spec('args') + ogre_parse.basereader.real('shininess')) \
+                       ^ (ogre_parse.basereader.color4spec('args') + ogre_parse.basereader.real('shininess'))
+        self.specular = Group(Keyword('specular').suppress() + specularspec)('specular')
+
+    def test_color_3(self):
+        amb3 = self.ambient.parseString(test_ambient_3)
+        dif3 = self.diffuse.parseString(test_diffuse_3)
+        emi3 = self.emissive.parseString(test_emissive_3)
+        # spe3 = self.specular.parseString(test_specular_3)
+
+        # print('constructing test object')
+        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
+
+        print('amb3 = %s ' % amb3)
+        print('dif3 = %s ' % dif3)
+        print('emi3 = %s ' % emi3)
+        # print('spe3 = %s ' % spe3)
+
+        self.assertEqual(c, amb3[0][0])
+        self.assertEqual(c, dif3[0][0])
+        self.assertEqual(c, emi3[0][0])
+        # self.assertEqual(c, spe3[0][0])
+        # self.assertEqual(25.0, spe3[0][1])
 
 # --------------------------------------------- #
 test_texture_unit = """
