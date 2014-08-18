@@ -92,7 +92,7 @@ class TestColorParsers(unittest.TestCase):
 
         color3spec = Group(real('r') + real('g') + real('b')).setParseAction(ogre_parse.basemodel.Color)
         color4spec = Group(real('r') + real('g') + real('b') + real('a')).setParseAction(ogre_parse.basemodel.Color)
-        colorspec = ( color3spec ^ color4spec )('args')
+        colorspec = ( color3spec ^ color4spec )
 
         # define parsers
         self.ambient = Group(Keyword('ambient').suppress() + colorspec)('ambient')
@@ -110,17 +110,12 @@ class TestColorParsers(unittest.TestCase):
 
         c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
 
-        print('amb3 = %s ' % amb3)
-        print('dif3 = %s ' % dif3)
-        print('emi3 = %s ' % emi3)
-        print('spe3 = %s ' % spe3)
-
         # desired usage in comments
-        self.assertEqual(c, amb3[0][0]) # amb3.ambient
-        self.assertEqual(c, dif3[0][0]) # dif3.diffuse
-        self.assertEqual(c, emi3[0][0]) # emi3.emissive
-        self.assertEqual(c, spe3[0][0]) # spe3.color
-        self.assertEqual(25.0, spe3[0].shininess)
+        self.assertEqual(c, amb3.ambient[0])
+        self.assertEqual(c, dif3.diffuse[0])
+        self.assertEqual(c, emi3.emissive[0])
+        self.assertEqual(c, spe3.specular[0])
+        self.assertEqual(25.0, spe3.specular.shininess)
 
     def test_color_4(self):
         amb4 = self.ambient.parseString(test_ambient_4)
@@ -130,17 +125,12 @@ class TestColorParsers(unittest.TestCase):
 
         c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
 
-        print('amb4 = %s ' % amb4)
-        print('dif4 = %s ' % dif4)
-        print('emi4 = %s ' % emi4)
-        print('spe4 = %s ' % spe4)
-
         # desired usage in comments
-        self.assertEqual(c, amb4[0][0]) # amb4.ambient
-        self.assertEqual(c, dif4[0][0]) # dif4.diffuse
-        self.assertEqual(c, emi4[0][0]) # emi4.emissive
-        self.assertEqual(c, spe4[0][0]) # spe4.color
-        self.assertEqual(25.0, spe4[0].shininess)
+        self.assertEqual(c, amb4.ambient[0])
+        self.assertEqual(c, dif4.diffuse[0])
+        self.assertEqual(c, emi4.emissive[0])
+        self.assertEqual(c, spe4.specular[0])
+        self.assertEqual(25.0, spe4.specular.shininess)
 
 # --------------------------------------------- #
 test_texture_unit = """
