@@ -74,3 +74,40 @@ class Material(object):
 
     __repr__ = __str__
 
+
+# hook this up to an 'ogre_reader.reader.ReaderScript' instance.
+class Script(object):
+    def __init__(self, tokens=None):
+        self.materials = []
+        self.shaders = []
+        self.compositors = []
+
+        if tokens:
+            if tokens.materials:
+                for m in tokens.materials:
+                    self.materials.append(m)
+
+            if tokens.shaders:
+                for s in tokens.shaders:
+                    self.shaders.append(s)
+
+            if tokens.compositors:
+                for c in tokens.compositors:
+                    self.compositors.append(c)
+
+
+    def __str__(self):
+        repr = ''
+
+        for m in self.materials:
+            repr += m
+
+        for s in self.shaders:
+            repr += s
+
+        for c in self.compositors:
+            repr += c
+
+    __repr__ = __str__
+
+

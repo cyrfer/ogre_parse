@@ -7,6 +7,10 @@ import ogre_parse.reader
 import ogre_parse.subreader
 import ogre_parse.basereader
 import ogre_parse.basemodel
+from ogre_parse.basemodel import *
+
+import ogre_parse.basereader
+import ogre_parse.basemodel
 
 import pyparsing
 from pyparsing import *
@@ -51,11 +55,13 @@ class TestColor(unittest.TestCase):
 
     def test_color_op_eq_ne(self):
         c = ogre_parse.basemodel.Color([[1.0, 2.0, 3.0, 4.0]])
-
-        self.assertTrue(c == [1.0, 2.0, 3.0, 4.0])
-        self.assertTrue(c != [0.0, 0.25, 0.5, 0.75])
-
         cc = ogre_parse.basemodel.Color([[1.0, 2.0, 3.0, 4.0]])
+        rr = ogre_parse.basemodel.Color([[5.0, 2.0, 3.0, 4.0]])
+        gg = ogre_parse.basemodel.Color([[1.0, 1.0, 3.0, 4.0]])
+
+        self.assertTrue(c == cc)
+        self.assertTrue(c != rr)
+        self.assertTrue(c != gg)
         self.assertEqual(c, cc)
 
 
@@ -203,7 +209,6 @@ class TestTexture(unittest.TestCase):
         res = self.reader_.parseString(test_texture_unit_filtering_none)
         tu = res.texture_unit
 
-        print('test: tu.properties = %s' % tu.properties )
         self.assertEqual( tu.properties['filtering'], 'none' )
 
     def test_unit_filtering_LLP(self):
@@ -272,6 +277,8 @@ pass
 {
     ambient 0.1 0.2 0.3 0.4
     diffuse 0.5 0.6 0.7 0.8
+    emissive 0.25 0.5 0.75 1.0
+    specular 0.33 0.66 0.99 1.0 33.33
 }
 """
 
@@ -483,8 +490,17 @@ class TestPass(unittest.TestCase):
     def test_pass(self):
         res = self.reader_.parseString(test_pass)
 
-        self.assertTrue( float_eq(res.mpass.ambient[0], float(0.1)) )
-        self.assertTrue( float_eq(res.mpass.diffuse[0], float(0.5)) )
+        ambi = Color([[0.10, 0.20, 0.30, 0.40]])
+        diff = Color([[0.5, 0.6, 0.7, 0.8]])
+        emis = Color([[0.25, 0.5, 0.75, 1.0]])
+        spec = Color([[0.33, 0.66, 0.99, 1.0]])
+        shin = float(33.33)
+
+        self.assertEqual( ambi, res.mpass.ambient )
+        self.assertEqual( diff, res.mpass.diffuse )
+        self.assertEqual( emis, res.mpass.emissive )
+        self.assertEqual( spec, res.mpass.specular )
+        self.assertTrue( float_eq(shin, res.mpass.shininess))
         self.assertEqual( res.mpass.name, '' )
 
     def test_pass_name(self):
@@ -818,7 +834,7 @@ class TestMaterial(unittest.TestCase):
         res = self.reader_.parseString(test_mat_lod)
 
         self.assertEqual('DistanceCustom', res.material.lod_strategy)
-        self.assertEqual([0,1,2], res.material.lod_values)
+        self.assertEqual([0, 1, 2], res.material.lod_values)
 
     def test_mat_shadows(self):
         res = self.reader_.parseString(test_mat_shadows)
@@ -851,7 +867,7 @@ material test_script_mat
 """
 
 test_script_2mat = """
-material
+material matName
 {
     technique
     {
@@ -861,7 +877,7 @@ material
     }
 }
 
-material
+material matName2
 {
     technique
     {
@@ -1179,25 +1195,20 @@ class TestScript(unittest.TestCase):
     def test_script_mat(self):
         res = self.reader_.parseString(test_script_mat)
 
-        len_elements = len(res)
-        self.assertEqual(len_elements, 1)
+        self.assertEqual(1, len(res.script.materials))
 
     def test_script_2mat(self):
         res = self.reader_.parseString(test_script_2mat)
 
-        len_elements = len(res)
-        self.assertEqual(len_elements, 2)
+        self.assertEqual(2, len(res.script.materials))
 
     def test_script_mat_comments(self):
         res = self.reader_.parseString(test_script_mat_comments)
 
-        len_elements = len(res)
-        self.assertEqual(len_elements, 1)
+        self.assertEqual(1, len(res.script.materials))
 
     def test_script_real(self):
-        # res = self.reader_.parseString(test_script_real)
-        #
-        # len_elements = len(res)
-        # self.assertEqual(len_elements, 5)
-        pass
+        res = self.reader_.parseString(test_script_real)
+
+        self.assertEqual(5, len(res.script.materials))
 

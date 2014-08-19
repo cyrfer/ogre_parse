@@ -63,12 +63,12 @@ class ReadShaderReference(ReadBase):
 class ReadPass(ReadBase):
     def __init__(self):
         # define named parsers
-        color_ambient = Group(Keyword('ambient') + colorspec)('ambient')
-        color_diffuse = Group(Keyword('diffuse') + colorspec)('diffuse')
-        color_emissive = Group(Keyword('emissive') + colorspec)('emissive')
+        color_ambient = Group(Keyword('ambient').suppress() + colorspec)('ambient')
+        color_diffuse = Group(Keyword('diffuse').suppress() + colorspec)('diffuse')
+        color_emissive = Group(Keyword('emissive').suppress() + colorspec)('emissive')
 
-        specularspec = (color3spec('specular') + real('shininess')) ^ (color4spec('specular') + real('shininess'))
-        color_specular = Group(Keyword('specular') + specularspec)('specular')
+        specular_spec = Group(colorspec('color') + real('shininess'))
+        color_specular = Group(Keyword('specular').suppress() + specular_spec)('specular')
 
         # scene_blend
         # TODO: add action to turn short format into long format
@@ -159,8 +159,8 @@ class ReadPass(ReadBase):
                      # color
                      Optional(color_ambient) + \
                      Optional(color_diffuse) + \
-                     Optional(color_specular) + \
                      Optional(color_emissive) + \
+                     Optional(color_specular) + \
 
                      # blend
                      Optional(scene_blend) + \
@@ -241,8 +241,8 @@ class ReadTechnique(ReadBase):
         shadow_receiver_material = Group(Keyword('shadow_receiver_material').suppress() + identspec)('shadow_receiver_material')
 
         inex = oneOf('include exclude')
-        gpu_vendor_rule = Group(Keyword('gpu_vendor_rule') + inex + identspec)('gpu_vendor_rule')
-        gpu_device_rule = Group(Keyword('gpu_device_rule') + inex + propList)('gpu_device_rule')
+        gpu_vendor_rule = Group(Keyword('gpu_vendor_rule').suppress() + inex + identspec)('gpu_vendor_rule')
+        gpu_device_rule = Group(Keyword('gpu_device_rule').suppress() + inex + propList)('gpu_device_rule')
 
         techDecl = Keyword('technique').suppress() + Optional(ident)('name') + \
                         lbrace + \

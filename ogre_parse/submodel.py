@@ -75,7 +75,6 @@ class MShaderRef(object):
                 raise ParseException('ogre_parse::MShaderRef, missing shader resource name, e.g. myPhongShader')
 
             if shader.param_named_auto:
-                print('shader.param_named_auto = %s ' % shader.param_named_auto)
                 for k in shader.param_named_auto.keys():
                     val = ' '.join(shader.param_named_auto[k])
                     self.param_named_auto.update({k: val})
@@ -169,26 +168,24 @@ class MPass(object):
 
         # grab parsed results
         if tokens:
-            # print( tokens.dump('++ '))
-
             if tokens.mpass.name:
                 self.name = tokens.mpass.name
 
             # --- color
             if tokens.mpass.ambient:
-                self.ambient = tokens.mpass.ambient.args
+                self.ambient = tokens.mpass.ambient[0]
 
             if tokens.mpass.diffuse:
-                self.diffuse = tokens.mpass.diffuse.args
+                self.diffuse = tokens.mpass.diffuse[0]
 
             if tokens.mpass.emissive:
-                self.emissive = tokens.mpass.emissive.args
+                self.emissive = tokens.mpass.emissive[0]
 
             if tokens.mpass.specular:
-                self.specular = tokens.mpass.specular.specular
-
-            if tokens.mpass.specular:
-                self.shininess = tokens.mpass.specular.shininess
+                # TODO: the parser should enabled child elements to be referred by name, not index.
+                #  For example, specular.shininess, not [0][1].
+                self.specular = tokens.mpass.specular[0][0]
+                self.shininess = tokens.mpass.specular[0][1]
 
             # --- blend
             if tokens.mpass.scene_blend:

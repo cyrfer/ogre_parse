@@ -89,17 +89,17 @@ class ReadCompositor(ReadBase):
 # grammar to parse anything in an ogre script (.material, .compositor, .program)
 class ReadScript(ReadBase):
     def __init__(self):
-        self.material_ = ReadMaterial()
-        self.shader_declaration_ = ReadShaderDeclaration()
-        self.compositor_ = ReadCompositor()
+        material_ = ReadMaterial().getGrammar()
+        shader_declaration_ = ReadShaderDeclaration().getGrammar()
+        compositor_ = ReadCompositor().getGrammar()
 
-        scriptDecl = ZeroOrMore( self.material_.getGrammar() | \
-                                 self.shader_declaration_.getGrammar() | \
-                                 self.compositor_.getGrammar() )
+        scriptDecl = ZeroOrMore( material_ )('materials') & \
+                     ZeroOrMore( shader_declaration_ )('shaders') & \
+                     ZeroOrMore( compositor_ )('compositors')
 
-        scriptDecl.ignore(cppStyleComment)
+        scriptDecl.setParseAction(Script)
 
-        super(ReadScript, self).__init__(scriptDecl)
+        super(ReadScript, self).__init__(scriptDecl('script'))
 
     def getGrammar(self):
         return self.grammar_
