@@ -28,6 +28,9 @@ class Color(object):
         return self.vector.__setitem__(key, value)
 
     def __eq__(self, other):
+        if not isinstance(other, Color):
+            return False
+
         if not other:
             print('ogre_parse.basemodel.Color: why are we comparing with _%s_?' % other)
             return False
