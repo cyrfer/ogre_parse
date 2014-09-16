@@ -198,6 +198,7 @@ class TestTexture(unittest.TestCase):
 
         self.assertEqual( tu.name, '' )
         self.assertEqual( tu.resource_name, 'file.ext' )
+        self.assertEqual( tu.resource_type, 'texture' )
 
     def test_texture_unit_name(self):
         res = self.reader_.parseString(test_texture_unit_name)
