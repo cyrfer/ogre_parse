@@ -5,8 +5,12 @@ import array
 
 # should be hooked up to a 'basereader.colorspec' instance
 class Color(object):
-    def __init__(self, tokens=None):
+    def __init__(self, tokens=None, vals=None):
         self.vector = array.array('f', [0, 0, 0, 1])
+
+        if vals:
+            for i in range(min(4,len(vals))):
+                self.vector[i] = vals[i]
 
         if tokens and len(tokens) > 0:
             for index in range(min(len(self.vector), len(tokens[0]))):
