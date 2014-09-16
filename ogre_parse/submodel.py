@@ -13,6 +13,7 @@ class MTextureUnit(object):
         self.resource_type = 'texture'
         self.resource_name = ''
         self.properties = {}
+        self.indent = ''
 
         if tokens:
             tu = tokens.texture_unit
@@ -30,14 +31,14 @@ class MTextureUnit(object):
 
 
     def __str__(self):
-        indent = '\t'
-        repr = 'texture_unit' + self.name + '\n{\n'
-        repr += indent + self.resource_type + ' ' + self.resource_name
+        loc_indent = 4*' '
+        repr = self.indent + 'texture_unit ' + self.name + '\n{\n'
+        repr += self.indent + loc_indent + self.resource_type + ' ' + self.resource_name + '\n'
 
         for k,v in self.properties.items():
-            repr += str(k) + ' ' + str(v)
+            repr += self.indent + loc_indent + str(k) + ' ' + str(v) + '\n'
 
-        repr += '\n}\n'
+        repr += self.indent + '}\n'
 
         return repr
 
@@ -56,6 +57,8 @@ class MShaderRef(object):
         self.param_named = {}
         self.param_named_auto = {}
         self.param_shared_ref = {}
+
+        self.indent = ''
 
         if tokens:
             shader = tokens.shader_ref
@@ -81,16 +84,16 @@ class MShaderRef(object):
 
 
     def __str__(self):
+        loc_indent = 4*' '
         repr = ''
 
-        repr += self.stage + ' ' + self.resource_name
-        repr += '\n{\n'
+        repr += self.indent + self.stage + ' ' + self.resource_name + '\n{'
 
         # show all the 'auto' params
         for k,v in self.param_named_auto.items():
-            repr += '\n' + str(k) + ' ' + str(v)
+            repr += '\n' + self.indent + loc_indent + str(k) + ' ' + str(v)
 
-        repr += '\n}\n'
+        repr += '\n' + self.indent + '}\n'
         return repr
 
     # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
@@ -103,11 +106,11 @@ class MPass(object):
         self.name = ''
 
         # color
-        self.ambient = Color()
-        self.emissive = Color()
-        self.diffuse = Color()
-        self.specular = Color()
-        self.shininess = float(10.0)
+        self.ambient = Color(vals=[1, 1, 1, 1])
+        self.diffuse = Color(vals=[1, 1, 1, 1])
+        self.emissive = Color(vals=[0, 0, 0, 0])
+        self.specular = Color(vals=[0, 0, 0, 0])
+        self.shininess = float(0.0)
 
         # blend
         self.scene_blend = 'one zero'
@@ -165,6 +168,9 @@ class MPass(object):
         # --- objects ---
         self.texture_units = []
         self.shaders = []
+
+        # --- for text output formatting ---
+        self.indent = ''
 
         # grab parsed results
         if tokens:
@@ -308,19 +314,27 @@ class MPass(object):
 
 
     def __str__(self):
-        repr = 'pass ' + self.name + '\n{\n'
+        repr = self.indent + 'pass' + ((' ' + self.name) if self.name else '') + '\n' + self.indent + '{\n'
 
-        indent = '\t'
+        loc_indent = 4*' '
 
-        repr += indent + 'ambient ' + str(self.ambient) + '\n'
-        repr += indent + 'diffuse ' + str(self.diffuse) + '\n'
-        repr += indent + 'emissive ' + str(self.emissive) + '\n'
-        repr += indent + 'specular ' + str(self.specular) + ' ' + str(self.shininess) + '\n'
+        if self.ambient != Color(vals=[1, 1, 1, 1]):
+            repr += self.indent + loc_indent + 'ambient ' + str(self.ambient) + '\n'
+
+        if self.diffuse != Color(vals=[1, 1, 1, 1]):
+            repr += self.indent + loc_indent + 'diffuse ' + str(self.diffuse) + '\n'
+
+        if self.emissive != Color(vals=[0, 0, 0, 0]):
+            repr += self.indent + loc_indent + 'emissive ' + str(self.emissive) + '\n'
+
+        if (self.specular != Color(vals=[0, 0, 0, 0])) or (self.shininess != 0.0):
+            repr += self.indent + loc_indent + 'specular ' + str(self.specular) + ' ' + str(self.shininess) + '\n'
 
         for tu in self.texture_units:
+            tu.indent = self.indent + loc_indent
             repr += str(tu)
 
-        repr += '\n}\n'
+        repr += self.indent + '}'
 
         return repr
 
@@ -339,6 +353,7 @@ class MTechnique(object):
         self.gpu_vendor_rule = []
         self.gpu_device_rule = []
         self.passes = []
+        self.indent = ''
 
         if tokens:
             tech = tokens.technique
@@ -372,25 +387,29 @@ class MTechnique(object):
 
 
     def __str__(self):
-        indent = '    '
+        loc_indent = 4*' '
 
         repr = ''
-        repr += '\n' + indent + 'technique ' + self.name
-        repr += '\n' + indent + '{\n'
+        repr += '\n' + self.indent + 'technique' + ((' ' + self.name) if self.name else '')
+        repr += '\n' + self.indent + '{\n'
 
         if self.scheme:
-            repr += '\n' + 2*indent + 'scheme ' + self.scheme
+            repr += '\n' + self.indent + loc_indent + 'scheme ' + self.scheme
 
         if self.lod_index != 0:
-            repr += '\n' + 2*indent + 'lod_index ' + str(self.lod_index)
+            repr += '\n' + self.indent + loc_indent + 'lod_index ' + str(self.lod_index)
 
         if self.shadow_caster_material:
-            repr += '\n' + 2*indent + 'shadow_caster_material ' + self.shadow_caster_material
+            repr += '\n' + self.indent + loc_indent + 'shadow_caster_material ' + self.shadow_caster_material
 
         if self.shadow_receiver_material:
-            repr += '\n' + 2*indent + 'shadow_receiver_material ' + self.shadow_receiver_material
+            repr += '\n' + self.indent + loc_indent + 'shadow_receiver_material ' + self.shadow_receiver_material
 
-        repr += '\n' + indent + '}\n'
+        for p in self.passes:
+            p.indent = self.indent + loc_indent
+            repr += str(p)
+
+        repr += '\n' + self.indent + '}\n'
 
         return repr
 

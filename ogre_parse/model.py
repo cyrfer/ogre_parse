@@ -42,33 +42,34 @@ class Material(object):
 
 
     def __str__(self):
-        indent = '    '
+        loc_indent = 4*' '
 
         repr = '\n'
         repr += 'material ' + self.name
-        repr += '\n{\n'
+        repr += '\n{'
 
-        if self.lod_strategy:
-            repr += '\n' + indent + 'lod_strategy ' + self.lod_strategy
+        if self.lod_strategy != 'Distance':
+            repr += '\n' + loc_indent + 'lod_strategy ' + self.lod_strategy
 
         if self.lod_values:
-            repr += '\n' + indent + 'lod_values '
+            repr += '\n' + loc_indent + 'lod_values '
             for lod in self.lod_values:
                 repr += lod
 
         if self.receive_shadows != 'on':
-            repr += '\n' + indent + self.receive_shadows
+            repr += '\n' + loc_indent + self.receive_shadows
 
         if self.transparency_casts_shadows != 'off':
-            repr += '\n' + indent + self.transparency_casts_shadows
+            repr += '\n' + loc_indent + self.transparency_casts_shadows
 
         for k,v in self.texture_alias.items():
-            repr += '\n' + indent + k + ' ' + v
+            repr += '\n' + loc_indent + k + ' ' + v
 
         for t in self.techniques:
-            repr += t
+            t.indent = loc_indent
+            repr += str(t)
 
-        repr += '\n}\n'
+        repr += '}\n'
 
         return repr
 
@@ -100,13 +101,16 @@ class Script(object):
         repr = ''
 
         for m in self.materials:
-            repr += m
+            repr += str(m)
+            repr += '\n'
 
         for s in self.shaders:
-            repr += s
+            repr += str(s)
 
         for c in self.compositors:
-            repr += c
+            repr += str(c)
+
+        return repr
 
     __repr__ = __str__
 
