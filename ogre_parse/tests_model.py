@@ -97,11 +97,11 @@ class TestModel(unittest.TestCase):
 
     def test_mat(self):
         grammar = ogre_parse.reader.ReadMaterial()
-        print('--- string data:\n%s---' % test_model_material)
+        # print('--- string data:\n%s---' % test_model_material)
         parsed = grammar.parseString(test_model_material)
         model = parsed[0]
         modstr = str(model)
-        print('--- str(model):\n%s---' % modstr)
+        # print('--- str(model):\n%s---' % modstr)
         self.assertEqual(test_model_material.strip(), modstr.strip())
 
 
@@ -115,11 +115,11 @@ class TestModel(unittest.TestCase):
 
     def test_script(self):
         grammar = ogre_parse.reader.ReadScript()
-        print('--- string data:\n%s---' % test_model_script)
+        # print('--- string data:\n%s---' % test_model_script)
         parsed = grammar.parseString(test_model_script)
-        print('--- type(parsed[0])=%s' % type(parsed[0]))
+        # print('--- type(parsed[0])=%s' % type(parsed[0]))
         model = parsed[0]
         modstr = str(model)
-        print('--- str(model):\n%s---' % modstr)
+        # print('--- str(model):\n%s---' % modstr)
         self.assertEqual(test_model_script.strip(), modstr.strip())
 
