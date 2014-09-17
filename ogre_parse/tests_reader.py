@@ -325,6 +325,7 @@ pass
 {
     texture_unit
     {
+        texture_alias alias
         texture file.ext
     }
 }
