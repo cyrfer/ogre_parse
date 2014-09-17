@@ -32,9 +32,10 @@ class MTextureUnit(object):
 
     def __str__(self):
         loc_indent = 4*' '
-        repr = self.indent + 'texture_unit ' + self.name + '\n{\n'
+        repr = self.indent + 'texture_unit' + ((' ' + self.name) if self.name else '') + '\n{\n'
         repr += self.indent + loc_indent + self.resource_type + ' ' + self.resource_name + '\n'
 
+        # TODO: write the items in a predictable manner, so it is not so hard to write unit tests.
         for k,v in self.properties.items():
             repr += self.indent + loc_indent + str(k) + ' ' + str(v) + '\n'
 
