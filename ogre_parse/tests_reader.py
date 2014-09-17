@@ -188,6 +188,15 @@ texture_unit
 }
 '''
 
+test_texture_unit_texturealias = '''
+texture_unit
+{
+    texture_alias alias
+    texture file.ext
+}
+'''
+
+
 class TestTexture(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadTextureUnit()
@@ -223,6 +232,12 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual( tu.properties['tex_address_mode'], 'clamp' )
+
+    def test_texture_unit_texturealias(self):
+        res = self.reader_.parseString(test_texture_unit_texturealias)
+        tu = res.texture_unit
+
+        self.assertEqual('alias', tu.properties['texture_alias'])
 
 
 # --------------------------------------------- #
@@ -737,6 +752,12 @@ material awesomeMaterial
     {
         pass
         {
+            texture_unit
+            {
+                texture_alias alias
+                texture file.ext
+                filtering none
+            }
         }
     }
 }
