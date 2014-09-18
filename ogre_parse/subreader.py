@@ -10,7 +10,7 @@ from ogre_parse.submodel import *
 class ReadTextureUnit(ReadBase):
     def __init__(self):
         # TODO: need to separate the required member options
-        textureResourceDecl = oneOf('texture anim_texture cubic_texture')('resource_type')
+        textureResourceDecl = (Keyword('texture') | Keyword('anim_texture') | Keyword('cubic_texture'))('resource_type')
 
         texPropList = Group(identspec('name') + \
                       Optional( oneOf('1d 2d 3d cubic') )('type') + \
@@ -20,18 +20,24 @@ class ReadTextureUnit(ReadBase):
                       Optional(Literal('gamma')))
         textureResource = Group( textureResourceDecl + texPropList('resource_properties') )('required')
 
-        # the optional members
-        texturePropNameList = '''
-        texture_alias
-        tex_coord_set tex_address_mode tex_border_colour
-        filtering
-        '''
-        texturePropName = oneOf( texturePropNameList )
+        # define the optional members
+        alias = Group(Keyword('texture_alias').suppress() + identspec)('texture_alias')
+        coord_set = Group(Keyword('tex_coord_set').suppress() + integer)('tex_coord_set')
+        address_mode = Group(Keyword('tex_address_mode').suppress() + oneOf('wrap clamp mirror border'))('tex_address_mode')
+        border_colour = Group(Keyword('tex_border_colour').suppress() + coloraction)('tex_border_colour')
+        filtering = Group(Keyword('filtering').suppress() + propList)('filtering')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
                         lbrace + \
-                            (textureResource & dictOf(texturePropName, propList)('properties')) + \
+                            ( \
+                            textureResource & \
+                            Optional(alias) & \
+                            Optional(coord_set) & \
+                            Optional(address_mode) & \
+                            Optional(border_colour) & \
+                            Optional(filtering) \
+                            ) + \
                         rbrace
 
         texture_ = Group(textureDecl).setParseAction(MTextureUnit)

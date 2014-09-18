@@ -12,7 +12,12 @@ class MTextureUnit(object):
         self.name = ''
         self.resource_type = 'texture'
         self.resource_name = ''
-        self.properties = {}
+        # self.properties = {}
+        self.texture_alias = ''
+        self.tex_coord_set = int(0)
+        self.tex_address_mode = 'wrap'
+        self.tex_border_colour = Color()
+        self.filtering = 'linear linear point'
         self.indent = ''
 
         if tokens:
@@ -25,19 +30,46 @@ class MTextureUnit(object):
                 self.resource_type = tu.required.resource_type
                 self.resource_name = tu.required.resource_properties.name
 
-            if tu.properties:
-                for k,v in tu.properties.items():
-                    self.properties.update( {k : ' '.join(v)})
+            if tu.texture_alias:
+                self.texture_alias = tu.texture_alias[0]
+
+            if tu.tex_coord_set:
+                self.tex_coord_set = tu.tex_coord_set
+
+            if tu.tex_address_mode:
+                self.tex_address_mode = tu.tex_address_mode[0]
+
+            if tu.tex_border_colour:
+                self.tex_border_colour = tu.tex_border_colour
+
+            if tu.filtering:
+                self.filtering = ' '.join(tu.filtering[0])
+
+            # if tu.properties:
+            #     for k,v in tu.properties.items():
+            #         self.properties.update( {k : ' '.join(v)})
 
 
     def __str__(self):
         loc_indent = 4*' '
         repr = self.indent + 'texture_unit' + ((' ' + self.name) if self.name else '') + '\n{\n'
+
+        if self.texture_alias:
+            repr += self.indent + loc_indent + 'texture_alias ' + self.texture_alias + '\n'
+
         repr += self.indent + loc_indent + self.resource_type + ' ' + self.resource_name + '\n'
 
-        # TODO: write the items in a predictable manner, so it is not so hard to write unit tests.
-        for k,v in self.properties.items():
-            repr += self.indent + loc_indent + str(k) + ' ' + str(v) + '\n'
+        if self.tex_coord_set != int(0):
+            repr += self.indent + loc_indent + 'tex_coord_set ' + str(self.tex_coord_set) + '\n'
+
+        if self.tex_address_mode != 'wrap':
+            repr += self.indent + loc_indent + 'tex_address_mode ' + self.tex_address_mode + '\n'
+
+        if self.tex_border_colour != Color(vals=[0.0, 0.0, 0.0, 1.0]):
+            repr += self.indent + loc_indent + 'tex_border_colour ' + str(self.tex_border_colour) + '\n'
+
+        if (self.filtering != 'bilinear') and (self.filtering != 'linear linear point'):
+            repr += self.indent + loc_indent + 'filtering ' + self.filtering + '\n'
 
         repr += self.indent + '}\n'
 

@@ -54,10 +54,10 @@ class TestColor(unittest.TestCase):
         self.assertTrue(float_eq(0.8, c[3]))
 
     def test_color_op_eq_ne(self):
-        c = ogre_parse.basemodel.Color([[1.0, 2.0, 3.0, 4.0]])
-        cc = ogre_parse.basemodel.Color([[1.0, 2.0, 3.0, 4.0]])
-        rr = ogre_parse.basemodel.Color([[5.0, 2.0, 3.0, 4.0]])
-        gg = ogre_parse.basemodel.Color([[1.0, 1.0, 3.0, 4.0]])
+        c = ogre_parse.basemodel.Color(vals=[1.0, 2.0, 3.0, 4.0])
+        cc = ogre_parse.basemodel.Color(vals=[1.0, 2.0, 3.0, 4.0])
+        rr = ogre_parse.basemodel.Color(vals=[5.0, 2.0, 3.0, 4.0])
+        gg = ogre_parse.basemodel.Color(vals=[1.0, 1.0, 3.0, 4.0])
 
         self.assertTrue(c == cc)
         self.assertTrue(c != rr)
@@ -68,14 +68,14 @@ class TestColor(unittest.TestCase):
     def test_color_3(self):
         res = self.reader_.parseString(test_color_3)
 
-        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3]])
+        c = ogre_parse.basemodel.Color(vals=[0.1, 0.2, 0.3])
         # self.assertEqual(c, res[0])
         self.assertEqual(c, res.args)
 
     def test_color_4(self):
         res = self.reader_.parseString(test_color_4)
 
-        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 0.4]])
+        c = ogre_parse.basemodel.Color(vals=[0.1, 0.2, 0.3, 0.4])
         # self.assertEqual(c, res[0])
         self.assertEqual(c, res.args)
 
@@ -142,7 +142,9 @@ class TestColorParsers(unittest.TestCase):
 test_texture_unit = """
 texture_unit
 {
+    tex_address_mode clamp
     texture file.ext
+    texture_alias alias
 }
 """
 
@@ -191,8 +193,8 @@ texture_unit
 test_texture_unit_texturealias = '''
 texture_unit
 {
-    texture_alias alias
     texture file.ext
+    texture_alias alias
 }
 '''
 
@@ -205,39 +207,39 @@ class TestTexture(unittest.TestCase):
         res = self.reader_.parseString(test_texture_unit)
         tu = res.texture_unit
 
-        self.assertEqual( tu.name, '' )
-        self.assertEqual( tu.resource_name, 'file.ext' )
-        self.assertEqual( tu.resource_type, 'texture' )
+        self.assertEqual('', tu.name )
+        self.assertEqual('file.ext', tu.resource_name )
+        self.assertEqual('texture', tu.resource_type )
 
     def test_texture_unit_name(self):
         res = self.reader_.parseString(test_texture_unit_name)
         tu = res.texture_unit
 
-        self.assertEqual( tu.name, 'albedo')
+        self.assertEqual('albedo', tu.name)
 
     def test_unit_filtering_none(self):
         res = self.reader_.parseString(test_texture_unit_filtering_none)
         tu = res.texture_unit
 
-        self.assertEqual( tu.properties['filtering'], 'none' )
+        self.assertEqual( 'none', tu.filtering )
 
     def test_unit_filtering_LLP(self):
         res = self.reader_.parseString(test_texture_unit_filtering_linear_linear_point)
         tu = res.texture_unit
 
-        self.assertEqual( tu.properties['filtering'], 'linear linear point' )
+        self.assertEqual( 'linear linear point', tu.filtering )
 
     def test_unit_address_mode(self):
         res = self.reader_.parseString(test_texture_unit_address_mode_clamp)
         tu = res.texture_unit
 
-        self.assertEqual( tu.properties['tex_address_mode'], 'clamp' )
+        self.assertEqual( 'clamp', tu.tex_address_mode )
 
     def test_texture_unit_texturealias(self):
         res = self.reader_.parseString(test_texture_unit_texturealias)
         tu = res.texture_unit
 
-        self.assertEqual('alias', tu.properties['texture_alias'])
+        self.assertEqual('alias', tu.texture_alias)
 
 
 # --------------------------------------------- #
@@ -755,9 +757,9 @@ material awesomeMaterial
         {
             texture_unit
             {
-                texture_alias alias
                 texture file.ext
                 filtering none
+                texture_alias alias
             }
         }
     }

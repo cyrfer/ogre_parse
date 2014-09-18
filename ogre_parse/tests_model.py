@@ -8,9 +8,10 @@ import ogre_parse.reader
 test_model_texture = """
 texture_unit albedo
 {
+    texture_alias alias
     texture file.ext
-    filtering none
     tex_address_mode clamp
+    filtering none
 }
 """
 

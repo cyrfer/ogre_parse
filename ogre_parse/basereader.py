@@ -50,6 +50,7 @@ propList = Group(OneOrMore(~EOL + propVal))
 # colorspec = Group(~EOL + OneOrMore(realspec))('vector').setParseAction(Color)
 color3spec = Group(real('r') + real('g') + real('b')).setParseAction(ogre_parse.basemodel.Color)
 color4spec = Group(real('r') + real('g') + real('b') + real('a')).setParseAction(ogre_parse.basemodel.Color)
+coloraction = (color3spec ^ color4spec)
 colorspec = ( color3spec ^ color4spec )('args')
 identspec = Word( alphas+"_", alphanums+"_$@#." )
 
