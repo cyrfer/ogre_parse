@@ -72,8 +72,6 @@ class ReadPass(ReadBase):
         color_ambient = Group(Keyword('ambient').suppress() + colorspec)('ambient')
         color_diffuse = Group(Keyword('diffuse').suppress() + colorspec)('diffuse')
         color_emissive = Group(Keyword('emissive').suppress() + colorspec)('emissive')
-
-        specular_spec = Group(colorspec('color') + real('shininess'))
         color_specular = Group(Keyword('specular').suppress() + specular_spec)('specular')
 
         # scene_blend
@@ -163,65 +161,65 @@ class ReadPass(ReadBase):
 
         passBody = ( \
                      # color
-                     Optional(color_ambient) + \
-                     Optional(color_diffuse) + \
-                     Optional(color_emissive) + \
-                     Optional(color_specular) + \
+                     Optional(color_ambient) & \
+                     Optional(color_diffuse) & \
+                     Optional(color_emissive) & \
+                     Optional(color_specular) & \
 
                      # blend
-                     Optional(scene_blend) + \
-                     Optional(separate_scene_blend) + \
-                     Optional(scene_blend_op) + \
-                     Optional(separate_scene_blend_op) + \
+                     Optional(scene_blend) & \
+                     Optional(separate_scene_blend) & \
+                     Optional(scene_blend_op) & \
+                     Optional(separate_scene_blend_op) & \
 
                      # depth
-                     Optional(depth_check) + \
-                     Optional(depth_write) + \
-                     Optional(depth_func) + \
-                     Optional(depth_bias) + \
-                     Optional(iter_depth_bias) + \
+                     Optional(depth_check) & \
+                     Optional(depth_write) & \
+                     Optional(depth_func) & \
+                     Optional(depth_bias) & \
+                     Optional(iter_depth_bias) & \
 
                      # alpha
-                     Optional(alpha_rejection) + \
-                     Optional(alpha_to_coverage) + \
+                     Optional(alpha_rejection) & \
+                     Optional(alpha_to_coverage) & \
 
                      # light scissor
-                     Optional(light_scissor) + \
-                     Optional(light_clip_planes) + \
+                     Optional(light_scissor) & \
+                     Optional(light_clip_planes) & \
 
                      # other
-                     Optional(illumination_stage) + \
-                     Optional(transparent_sorting) + \
-                     Optional(normalise_normals) + \
+                     Optional(illumination_stage) & \
+                     Optional(transparent_sorting) & \
+                     Optional(normalise_normals) & \
 
                      # cull
-                     Optional(cull_hardware) + \
-                     Optional(cull_software) + \
+                     Optional(cull_hardware) & \
+                     Optional(cull_software) & \
 
                      # lighting
-                     Optional(lighting) + \
-                     Optional(shading) + \
+                     Optional(lighting) & \
+                     Optional(shading) & \
 
                      # polygon
-                     Optional(polygon_mode) + \
-                     Optional(polygon_mode_overrideable) + \
+                     Optional(polygon_mode) & \
+                     Optional(polygon_mode_overrideable) & \
 
                      # other
-                     Optional(fog_override) + \
-                     Optional(colour_write) + \
-                     Optional(start_light) + \
-                     Optional(max_lights) + \
-                     Optional(iteration) + \
+                     Optional(fog_override) & \
+                     Optional(colour_write) & \
+                     Optional(start_light) & \
+                     Optional(max_lights) & \
+                     Optional(iteration) & \
 
                      # point
-                     Optional(point_size) + \
-                     Optional(point_sprites) + \
-                     Optional(point_size_attenuation) + \
-                     Optional(point_size_min) + \
-                     Optional(point_size_max) + \
+                     Optional(point_size) & \
+                     Optional(point_sprites) & \
+                     Optional(point_size_attenuation) & \
+                     Optional(point_size_min) & \
+                     Optional(point_size_max) & \
 
                      # texture
-                     ZeroOrMore(tu.getGrammar())('texture_units') + \
+                     ZeroOrMore(tu.getGrammar())('texture_units') & \
 
                      # shaders
                      ZeroOrMore(shader.getGrammar())('shaders') \

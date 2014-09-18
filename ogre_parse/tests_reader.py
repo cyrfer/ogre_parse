@@ -40,6 +40,12 @@ class TestColor(unittest.TestCase):
         self.assertEqual(2, c[1])
         self.assertEqual(3, c[2])
 
+        cc = ogre_parse.basemodel.Color(vals=[1, 2, 3])
+
+        self.assertEqual(1, cc[0])
+        self.assertEqual(2, cc[1])
+        self.assertEqual(3, cc[2])
+
     def test_color_op_bracket(self):
         c = ogre_parse.basemodel.Color()
 
@@ -92,21 +98,11 @@ test_specular_4 = 'specular 0.1 0.2 0.3 1.0 25.0'
 
 class TestColorParsers(unittest.TestCase):
     def setUp(self):
-        realspec = Regex(r"\d+\.\d*")
-        integerspec = Word(nums)
-        real = (integerspec ^ realspec).setParseAction(lambda t: float(t[0]))
-
-        color3spec = Group(real('r') + real('g') + real('b')).setParseAction(ogre_parse.basemodel.Color)
-        color4spec = Group(real('r') + real('g') + real('b') + real('a')).setParseAction(ogre_parse.basemodel.Color)
-        colorspec = ( color3spec ^ color4spec )
-
         # define parsers
-        self.ambient = Group(Keyword('ambient').suppress() + colorspec)('ambient')
-        self.diffuse = Group(Keyword('diffuse').suppress() + colorspec)('diffuse')
-        self.emissive = Group(Keyword('emissive').suppress() + colorspec)('emissive')
-
-        specularspec = (color3spec('color') + real('shininess')) ^ (color4spec('color') + real('shininess'))
-        self.specular = Group(Keyword('specular').suppress() + specularspec)('specular')
+        self.ambient = Group(Keyword('ambient').suppress() + ogre_parse.basereader.colorspec)('ambient')
+        self.diffuse = Group(Keyword('diffuse').suppress() + ogre_parse.basereader.colorspec)('diffuse')
+        self.emissive = Group(Keyword('emissive').suppress() + ogre_parse.basereader.colorspec)('emissive')
+        self.specular = Group(Keyword('specular').suppress() + ogre_parse.basereader.specular_spec)('specular')
 
     def test_color_3(self):
         amb3 = self.ambient.parseString(test_ambient_3)
@@ -114,14 +110,14 @@ class TestColorParsers(unittest.TestCase):
         emi3 = self.emissive.parseString(test_emissive_3)
         spe3 = self.specular.parseString(test_specular_3)
 
-        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
+        c = ogre_parse.basemodel.Color(vals=[0.1, 0.2, 0.3, 1.0])
 
         # desired usage in comments
         self.assertEqual(c, amb3.ambient[0])
         self.assertEqual(c, dif3.diffuse[0])
         self.assertEqual(c, emi3.emissive[0])
-        self.assertEqual(c, spe3.specular[0])
-        self.assertEqual(25.0, spe3.specular.shininess)
+        self.assertEqual(c, spe3.specular[0].color[0])
+        self.assertEqual(25.0, spe3.specular[0].shininess[0])
 
     def test_color_4(self):
         amb4 = self.ambient.parseString(test_ambient_4)
@@ -129,14 +125,14 @@ class TestColorParsers(unittest.TestCase):
         emi4 = self.emissive.parseString(test_emissive_4)
         spe4 = self.specular.parseString(test_specular_4)
 
-        c = ogre_parse.basemodel.Color([[0.1, 0.2, 0.3, 1.0]])
+        c = ogre_parse.basemodel.Color(vals=[0.1, 0.2, 0.3, 1.0])
 
         # desired usage in comments
         self.assertEqual(c, amb4.ambient[0])
         self.assertEqual(c, dif4.diffuse[0])
         self.assertEqual(c, emi4.emissive[0])
-        self.assertEqual(c, spe4.specular[0])
-        self.assertEqual(25.0, spe4.specular.shininess)
+        self.assertEqual(c, spe4.specular[0].color[0])
+        self.assertEqual(25.0, spe4.specular[0].shininess[0])
 
 # --------------------------------------------- #
 test_texture_unit = """
@@ -470,6 +466,16 @@ pass
 test_pass_colour = '''
 pass
 {
+    ambient 1 0 0
+    diffuse 0 1 0
+    emissive 0 0 1
+    specular 1 1 0 12.5
+}
+'''
+
+test_pass_colour_write = '''
+pass
+{
     colour_write off
 }
 '''
@@ -624,6 +630,14 @@ class TestPass(unittest.TestCase):
 
     def test_pass_colour(self):
         res = self.reader_.parseString(test_pass_colour)
+
+        self.assertEqual(Color(vals=[1, 0, 0]), res.mpass.ambient)
+        self.assertEqual(Color(vals=[0, 1, 0]), res.mpass.diffuse)
+        self.assertEqual(Color(vals=[0, 0, 1]), res.mpass.emissive)
+        self.assertEqual(Color(vals=[1, 1, 0]), res.mpass.specular)
+
+    def test_pass_colour_write(self):
+        res = self.reader_.parseString(test_pass_colour_write)
 
         self.assertEqual('off', res.mpass.colour_write)
 

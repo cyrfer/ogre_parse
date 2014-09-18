@@ -52,6 +52,8 @@ color3spec = Group(real('r') + real('g') + real('b')).setParseAction(ogre_parse.
 color4spec = Group(real('r') + real('g') + real('b') + real('a')).setParseAction(ogre_parse.basemodel.Color)
 coloraction = (color3spec ^ color4spec)
 colorspec = ( color3spec ^ color4spec )('args')
+specular_spec = Group( (Group(color3spec)('color') + Group(real)('shininess')) ^ (Group(color4spec)('color') + Group(real)('shininess')) )
+
 identspec = Word( alphas+"_", alphanums+"_$@#." )
 
 truefalse_spec = oneOf('true false')

@@ -221,10 +221,8 @@ class MPass(object):
                 self.emissive = tokens.mpass.emissive[0]
 
             if tokens.mpass.specular:
-                # TODO: the parser should enabled child elements to be referred by name, not index.
-                #  For example, specular.shininess, not [0][1].
-                self.specular = tokens.mpass.specular[0][0]
-                self.shininess = tokens.mpass.specular[0][1]
+                self.specular = tokens.mpass.specular[0].color[0]
+                self.shininess = tokens.mpass.specular[0].shininess[0]
 
             # --- blend
             if tokens.mpass.scene_blend:
