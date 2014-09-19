@@ -10,8 +10,11 @@ class ShaderDeclaration(object):
         self.source = ''    # cloud.hlsl
         self.entry_point = ''   # CloudVS
         self.target = ''    # vs_2_0
+
+        self.has_default_params = False
         self.param_named_auto = {}  # param_named_auto Mv view_matrix
         self.param_named = {}  # param_named_auto Mv view_matrix
+
 
         if tokens and tokens.shader:
             sh = tokens.shader
@@ -43,16 +46,34 @@ class ShaderDeclaration(object):
                     for k, val in sh.default_params.param_named:
                         self.param_named.update({k: ' '.join(val)})
 
+                if self.param_named_auto or self.param_named:
+                    self.has_default_params = True
+
 
     def __str__(self):
-        loc_indent = 4*'-'
+        loc_indent = 4*' '
 
         repr = ''
-        repr += '\n' + self.stage + ' ' + self.name + self.language
+        repr += '\n' + self.stage + ' ' + self.name + ' ' + self.language
         repr += '\n' + '{'
         repr += '\n' + loc_indent + 'source ' + self.source
-        repr += '\n' + loc_indent + 'entry_point ' + self.entry_point
-        repr += '\n' + loc_indent + 'target ' + self.target
+
+        if self.language == 'hlsl':
+            repr += '\n' + loc_indent + 'entry_point ' + self.entry_point
+            repr += '\n' + loc_indent + 'target ' + self.target
+
+        if self.has_default_params:
+            repr += 2*'\n' + loc_indent + 'default_params'
+            repr += '\n' + loc_indent + '{'
+
+            for k, v in self.param_named_auto.items():
+                repr += '\n' + 2*loc_indent + 'param_named_auto ' + k + ' ' + v
+
+            for k, v in self.param_named.items():
+                repr += '\n' + 2*loc_indent + 'param_named ' + k + ' ' + v
+
+            repr += '\n' + loc_indent + '}'
+
         repr += '\n' + '}'
 
         return repr
