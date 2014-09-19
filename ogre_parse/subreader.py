@@ -72,12 +72,14 @@ class ReadShaderReference(ReadBase):
         # shaderRefPropName = oneOf('param_indexed param_indexed_auto param_named param_named_auto shared_params_ref')
 
         param_named_auto_spec = Keyword('param_named_auto').suppress() + ident
+        param_named_spec = Keyword('param_named').suppress() + ident
 
         shaderRefSpec = oneOf('vertex_program_ref fragment_program_ref')
 
         shaderRefDecl = shaderRefSpec('stage') + ident('resource_name') + \
                             lbrace + \
                                 dictOf( param_named_auto_spec, propList )('param_named_auto') + \
+                                dictOf( param_named_spec,      propList )('param_named') + \
                             rbrace
                                 # (dictOf(param_named_auto, propList('system_params'))('param_named_auto')) + \
         shader_ref_ = Group(shaderRefDecl)

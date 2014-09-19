@@ -140,9 +140,12 @@ class MShaderRef(object):
                 raise ParseException('ogre_parse::MShaderRef, missing shader resource name, e.g. myPhongShader')
 
             if shader.param_named_auto:
-                for k in shader.param_named_auto.keys():
-                    val = ' '.join(shader.param_named_auto[k])
-                    self.param_named_auto.update({k: val})
+                for k, val in shader.param_named_auto.items():
+                    self.param_named_auto.update({k: ' '.join(val)})
+
+            if shader.param_named:
+                for k, val in shader.param_named.items():
+                    self.param_named.update({k: ' '.join(val)})
 
 
     def __str__(self):
