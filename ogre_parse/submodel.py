@@ -4,6 +4,8 @@ __author__ = 'jgrant'
 from ogre_parse.basemodel import *
 
 from pyparsing import ParseException
+import math
+
 
 
 # should be hooked up to a 'subreader.ReadTextureUnit' instance
@@ -12,12 +14,15 @@ class MTextureUnit(object):
         self.name = ''
         self.resource_type = 'texture'
         self.resource_name = ''
-        # self.properties = {}
+        # self.cubic_images = {'front': '', 'back': '', 'left': '', 'right': '', 'up': '', 'down': ''}
+        # self.cubic_address_mode = ''
         self.texture_alias = ''
         self.tex_coord_set = int(0)
         self.tex_address_mode = 'wrap'
         self.tex_border_colour = Color()
         self.filtering = 'linear linear point'
+        self.scale = array.array('f', [1.0, 1.0])
+        self.colour_op = 'modulate'
         self.indent = ''
 
         if tokens:
@@ -27,8 +32,13 @@ class MTextureUnit(object):
                 self.name = tu.name
 
             if tu.required:
+                # assume it is 'texture' until I support 'anim_texture' and 'cubic_texture'
                 self.resource_type = tu.required.resource_type
                 self.resource_name = tu.required.resource_properties.name
+
+                # if tu.required.resource_properties.type:
+                #     # should be one of: 1d, 2d, 3d, cubic
+                #     self.resource_texture_type = tu.required.resource_properties.type
 
             if tu.texture_alias:
                 self.texture_alias = tu.texture_alias[0]
@@ -45,9 +55,13 @@ class MTextureUnit(object):
             if tu.filtering:
                 self.filtering = ' '.join(tu.filtering[0])
 
-            # if tu.properties:
-            #     for k,v in tu.properties.items():
-            #         self.properties.update( {k : ' '.join(v)})
+            if tu.scale:
+                self.scale[0] = tu.scale.x
+                self.scale[1] = tu.scale.y
+
+            if tu.colour_op:
+                self.colour_op = tu.colour_op[0]
+
 
 
     def __str__(self):
@@ -57,7 +71,15 @@ class MTextureUnit(object):
         if self.texture_alias:
             repr += self.indent + loc_indent + 'texture_alias ' + self.texture_alias + '\n'
 
-        repr += self.indent + loc_indent + self.resource_type + ' ' + self.resource_name + '\n'
+        # check the resource type
+        if self.resource_type == 'texture':
+            repr += self.indent + loc_indent + self.resource_type + ' ' + self.resource_name +\
+                    '\n'
+                    # (self.resource_texture_type if (self.resource_texture_type!='2d') else '') +\
+        elif self.resource_type == 'cubic_texture':
+            pass
+        elif self.resource_type == 'anim_texture':
+            pass
 
         if self.tex_coord_set != int(0):
             repr += self.indent + loc_indent + 'tex_coord_set ' + str(self.tex_coord_set) + '\n'
@@ -70,6 +92,13 @@ class MTextureUnit(object):
 
         if (self.filtering != 'bilinear') and (self.filtering != 'linear linear point'):
             repr += self.indent + loc_indent + 'filtering ' + self.filtering + '\n'
+
+        eps = 1e-7
+        if (math.fabs(self.scale[0]-1.0) > eps) or (math.fabs(self.scale[1]-1.0) > eps):
+            repr += self.indent + loc_indent + 'scale ' + str(self.scale[0]) + str(self.scale[1]) + '\n'
+
+        if self.colour_op != 'modulate':
+            repr += self.indent + loc_indent + 'colour_op' + self.colour_op + '\n'
 
         repr += self.indent + '}\n'
 

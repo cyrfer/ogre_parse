@@ -194,6 +194,21 @@ texture_unit
 }
 '''
 
+test_texture_unit_scale = """
+texture_unit
+{
+    texture file.ext
+    scale 0.1 0.2
+}
+"""
+
+test_texture_unit_colour_op = """
+texture_unit
+{
+    texture file.ext
+    colour_op alpha_blend
+}
+"""
 
 class TestTexture(unittest.TestCase):
     def setUp(self):
@@ -236,6 +251,19 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual('alias', tu.texture_alias)
+
+    def test_texture_unit_scale(self):
+        res = self.reader_.parseString(test_texture_unit_scale)
+        tu = res.texture_unit
+
+        self.assertTrue(float_eq(0.1, tu.scale[0]))
+        self.assertTrue(float_eq(0.2, tu.scale[1]))
+
+    def test_texture_unit_colour_op(self):
+        res = self.reader_.parseString(test_texture_unit_colour_op)
+        tu = res.texture_unit
+
+        self.assertEqual('alpha_blend', tu.colour_op)
 
 
 # --------------------------------------------- #
@@ -888,6 +916,67 @@ class TestMaterial(unittest.TestCase):
         self.assertEqual('y', res.material.texture_alias['b'])
         self.assertEqual('x', res.material.texture_alias['c'])
 
+
+# --------------------------------------------- #
+
+test_shader_vert_hlsl = '''
+vertex_program billboard_vColor_1UV_vp_hlsl hlsl
+{
+    source cloud.hlsl
+    entry_point CloudVS
+    target vs_2_0
+
+    default_params
+    {
+        // auto params
+        param_named_auto Mv view_matrix
+        param_named_auto Mp projection_matrix
+
+        // custom parameter
+        param_named billboard_radius float 1.0
+    }
+}
+'''
+
+test_shader_frag_hlsl = '''
+fragment_program vertex_color_fp_hlsl hlsl
+{
+    source cloud.hlsl
+    entry_point CloudPS
+    target ps_2_0
+
+    default_params
+    {
+    }
+}
+'''
+
+class TestShaderDeclaration(unittest.TestCase):
+    def setUp(self):
+        self.reader_ = ogre_parse.reader.ReadShaderDeclaration()
+
+    def test_shader_vert_hlsl(self):
+        res = self.reader_.parseString(test_shader_vert_hlsl)
+
+        self.assertEqual('vertex_program', res.shader.stage)
+        self.assertEqual('hlsl', res.shader.language)
+        self.assertEqual('billboard_vColor_1UV_vp_hlsl', res.shader.name)
+        self.assertEqual('cloud.hlsl', res.shader.source)
+        self.assertEqual('CloudVS', res.shader.entry_point)
+        self.assertEqual('vs_2_0', res.shader.target)
+        self.assertEqual('view_matrix', res.shader.param_named_auto['Mv'])
+        self.assertEqual('projection_matrix', res.shader.param_named_auto['Mp'])
+        self.assertEqual('float 1.0', res.shader.param_named['billboard_radius'])
+
+    def test_shader_frag_hlsl(self):
+        res = self.reader_.parseString(test_shader_frag_hlsl)
+
+        self.assertEqual('fragment_program', res.shader.stage)
+        self.assertEqual('hlsl', res.shader.language)
+        self.assertEqual('vertex_color_fp_hlsl', res.shader.name)
+        self.assertEqual('cloud.hlsl', res.shader.source)
+        self.assertEqual('CloudPS', res.shader.entry_point)
+        self.assertEqual('ps_2_0', res.shader.target)
 
 # --------------------------------------------- #
 

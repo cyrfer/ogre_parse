@@ -10,7 +10,24 @@ from ogre_parse.submodel import *
 class ReadTextureUnit(ReadBase):
     def __init__(self):
         # TODO: need to separate the required member options
-        textureResourceDecl = (Keyword('texture') | Keyword('anim_texture') | Keyword('cubic_texture'))('resource_type')
+        # ---------------------
+        cubicResourceDecl = Keyword('cubic_texture')('resource_type')
+
+        cubicIdentifier = identspec ^ Group(identspec + identspec + identspec + identspec + identspec + identspec)
+        # cubicPropList = Group(\
+        #                         cubicIdentifier('name') + \
+        #                         oneOf('combinedUVW separateUV')('batch_mode') \
+        #                      )
+        cubicPropList = propList
+        cubicResource = Group( cubicResourceDecl + cubicPropList('cubic_properties') )('required')
+
+        # ---------------------
+        animResourceDecl = Keyword('anim_texture')('resource_type')
+
+        animResource = Group( animResourceDecl + propList('keyframes') )('required')
+
+        # ---------------------
+        textureResourceDecl = Keyword('texture')('resource_type')
 
         texPropList = Group(identspec('name') + \
                       Optional( oneOf('1d 2d 3d cubic') )('type') + \
@@ -26,17 +43,21 @@ class ReadTextureUnit(ReadBase):
         address_mode = Group(Keyword('tex_address_mode').suppress() + oneOf('wrap clamp mirror border'))('tex_address_mode')
         border_colour = Group(Keyword('tex_border_colour').suppress() + coloraction)('tex_border_colour')
         filtering = Group(Keyword('filtering').suppress() + propList)('filtering')
+        scale = Group(Keyword('scale').suppress() + (real('x') + real('y')))('scale')
+        colour_op = Group(Keyword('colour_op').suppress() + oneOf('replace add modulate alpha_blend'))('colour_op')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
                         lbrace + \
                             ( \
-                            textureResource & \
+                            (textureResource | animResource | cubicResource) & \
                             Optional(alias) & \
                             Optional(coord_set) & \
                             Optional(address_mode) & \
                             Optional(border_colour) & \
-                            Optional(filtering) \
+                            Optional(filtering) & \
+                            Optional(scale) & \
+                            Optional(colour_op) \
                             ) + \
                         rbrace
 
@@ -52,7 +73,9 @@ class ReadShaderReference(ReadBase):
 
         param_named_auto_spec = Keyword('param_named_auto').suppress() + ident
 
-        shaderRefDecl = oneOf('vertex_program_ref fragment_program_ref')('stage') + ident('resource_name') + \
+        shaderRefSpec = oneOf('vertex_program_ref fragment_program_ref')
+
+        shaderRefDecl = shaderRefSpec('stage') + ident('resource_name') + \
                             lbrace + \
                                 dictOf( param_named_auto_spec, propList )('param_named_auto') + \
                             rbrace

@@ -1,6 +1,65 @@
 __author__ = 'jgrant'
 
 
+# hook this up to a ogre_parse.reader.ReadShaderDeclaration
+class ShaderDeclaration(object):
+    def __init__(self, tokens=None):
+        self.stage = ''     # vertex_program
+        self.name = ''      # myVertShader
+        self.language = ''  # hlsl or glsl
+        self.source = ''    # cloud.hlsl
+        self.entry_point = ''   # CloudVS
+        self.target = ''    # vs_2_0
+        self.param_named_auto = {}  # param_named_auto Mv view_matrix
+        self.param_named = {}  # param_named_auto Mv view_matrix
+
+        if tokens and tokens.shader:
+            sh = tokens.shader
+
+            if sh.stage:
+                self.stage = sh.stage
+
+            if sh.name:
+                self.name = sh.name
+
+            if sh.language:
+                self.language = sh.language
+
+            if sh.source:
+                self.source = sh.source[0]
+
+            if sh.entry_point:
+                self.entry_point = sh.entry_point[0]
+
+            if sh.target:
+                self.target = sh.target[0]
+
+            if sh.default_params:
+                if sh.default_params.param_named_auto:
+                    for k, val in sh.default_params.param_named_auto:
+                        self.param_named_auto.update({k: ' '.join(val)})
+
+                if sh.default_params.param_named:
+                    for k, val in sh.default_params.param_named:
+                        self.param_named.update({k: ' '.join(val)})
+
+
+    def __str__(self):
+        loc_indent = 4*'-'
+
+        repr = ''
+        repr += '\n' + self.stage + ' ' + self.name + self.language
+        repr += '\n' + '{'
+        repr += '\n' + loc_indent + 'source ' + self.source
+        repr += '\n' + loc_indent + 'entry_point ' + self.entry_point
+        repr += '\n' + loc_indent + 'target ' + self.target
+        repr += '\n' + '}'
+
+        return repr
+
+    __repr__ = __str__
+
+
 # hook this up to a ogre_parse.reader.ReadMaterial
 # models the properties of:
 # http://www.ogre3d.org/docs/manual/manual_14.html#Material-Scripts

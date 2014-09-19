@@ -47,18 +47,39 @@ class ReadMaterial(ReadBase):
 # grammar to parse shader declarations
 class ReadShaderDeclaration(ReadBase):
     def __init__(self):
-        shaderDeclPropName = oneOf('source entry_point target delegate')
-        shaderDeclProp = Group(shaderDeclPropName + propList)
-        shaderType = oneOf('vertex_program geometry_program fragment_program')
-        shaderName = ident
-        shaderLang = oneOf('glsl hlsl cg asm')
-        shaderDeclDecl = shaderType + shaderName + shaderLang + \
+
+        param_named_auto_spec = Keyword('param_named_auto').suppress() + ident
+        param_named_spec = Keyword('param_named').suppress() + ident
+
+        default_params = Group( Keyword('default_params').suppress() + \
+                                lbrace + \
+                                    dictOf( param_named_auto_spec, propList )('param_named_auto') + \
+                                    dictOf( param_named_spec,      propList )('param_named') + \
+                                rbrace \
+                               )('default_params')
+
+        # shaderDeclPropName = oneOf('source entry_point target delegate')
+        # shaderDeclProp = Group(shaderDeclPropName + propList)
+        shaderStage = oneOf('vertex_program geometry_program fragment_program')('stage')
+        shaderName = ident('name')
+        shaderLang = oneOf('glsl hlsl cg asm')('language')
+
+        source = Group(Keyword('source').suppress() + identspec)('source')
+        entry_point = Group(Keyword('entry_point').suppress() + identspec)('entry_point')
+        target = Group(Keyword('target').suppress() + identspec)('target')
+
+        shaderDeclDecl = shaderStage + shaderName + shaderLang + \
                             lbrace + \
-                                ZeroOrMore(shaderDeclProp) + \
+                            (\
+                                source & \
+                                entry_point & \
+                                target & \
+                                Optional(default_params) \
+                            ) + \
                             rbrace
                                 # (shaderDeclProps_unified | shaderDeclProps_hlsl | shaderDeclProps_glsl | shaderDeclProps_cg | shaderDeclProps_asm)
-        shader_declaration = Group(shaderDeclDecl)
-        shader_declaration.setName('-Shader Declaration-')
+        shader_declaration = Group(shaderDeclDecl)('shader')
+        shader_declaration.setParseAction(ShaderDeclaration)
         super(ReadShaderDeclaration, self).__init__(shader_declaration)
 
 
