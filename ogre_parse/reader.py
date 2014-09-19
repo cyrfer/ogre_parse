@@ -68,12 +68,20 @@ class ReadShaderDeclaration(ReadBase):
         entry_point = Group(Keyword('entry_point').suppress() + identspec)('entry_point')
         target = Group(Keyword('target').suppress() + identspec)('target')
 
+        hlsl = ( \
+                    source & \
+                    entry_point & \
+                    target \
+                )
+
+        glsl = ( \
+                    source \
+                )
+
         shaderDeclDecl = shaderStage + shaderName + shaderLang + \
                             lbrace + \
                             (\
-                                source & \
-                                entry_point & \
-                                target & \
+                                (hlsl | glsl) & \
                                 Optional(default_params) \
                             ) + \
                             rbrace

@@ -951,6 +951,34 @@ fragment_program vertex_color_fp_hlsl hlsl
 }
 '''
 
+test_shader_vert_glsl = '''
+vertex_program billboard_vColor_1UV_vp glsl
+{
+    source billboard.vert
+
+    default_params
+    {
+        // auto params
+        param_named_auto Mv view_matrix
+        param_named_auto Mp projection_matrix
+
+        // custom parameter
+        param_named billboard_radius float 1.0
+    }
+}
+'''
+
+test_shader_frag_glsl = '''
+fragment_program vertex_color_fp glsl
+{
+    source vertex_color.frag
+
+    default_params
+    {
+    }
+}
+'''
+
 class TestShaderDeclaration(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.reader.ReadShaderDeclaration()
@@ -977,6 +1005,22 @@ class TestShaderDeclaration(unittest.TestCase):
         self.assertEqual('cloud.hlsl', res.shader.source)
         self.assertEqual('CloudPS', res.shader.entry_point)
         self.assertEqual('ps_2_0', res.shader.target)
+
+    def test_shader_vert_glsl(self):
+        res = self.reader_.parseString(test_shader_vert_glsl)
+
+        self.assertEqual('vertex_program', res.shader.stage)
+        self.assertEqual('glsl', res.shader.language)
+        self.assertEqual('billboard_vColor_1UV_vp', res.shader.name)
+        self.assertEqual('billboard.vert', res.shader.source)
+
+    def test_shader_frag_glsl(self):
+        res = self.reader_.parseString(test_shader_frag_glsl)
+
+        self.assertEqual('fragment_program', res.shader.stage)
+        self.assertEqual('glsl', res.shader.language)
+        self.assertEqual('vertex_color_fp', res.shader.name)
+        self.assertEqual('vertex_color.frag', res.shader.source)
 
 # --------------------------------------------- #
 
