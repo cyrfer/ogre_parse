@@ -30,43 +30,53 @@ def parse_script(aPath):
     scriptReader = ogre_parse.reader.ReadScript()
     with open(aPath, 'r') as f:
         script = f.read()
-        # print('---- contents ----\n%s\n------ end -------' % script)
         try:
             res = scriptReader.parseString(script)
-            len_elems = len(res)
-            print('[%s] elements in file: %s' % (len_elems, aPath))
-        except:
-            print('--an error occurred reading: %s' % aPath)
+        except Exception as e:
+            print('--an error occurred reading, with message:\n%s' % (aPath, str(e)))
 
     return res
 
 
 def show_stats(aFolder):
-    (mats, progs, comps) = script_search(search_folder)
+    (mats, progs, comps) = script_search(aFolder)
     print('ogre statistics, under folder, %s, \nreading files: [%s] material, [%s] program, [%s] compositor' % (search_folder, len(mats), len(progs), len(comps)))
 
     len_mats = 0
     for m in mats:
         parsedres = parse_script(m)
-        len_progs += len(parsedres)
+        script = parsedres[0]
+        len_mats += len(script.materials)
+
+        with open(m, 'r') as f:
+            ftext = f.read()
+            len_elems = ftext.count('material ')
+            if len_elems != len(script.materials):
+                print('!!! script file likely contains [%s] materials, but parser found [%s], in script: %s' % (len_elems, len(script.materials), m))
+            else:
+                print('parsed [%s] materials from file: %s' % (len(script.materials), m))
 
     len_progs = 0
     for p in progs:
         parsedres = parse_script(p)
-        len_mats += len(parsedres)
+        len_progs += len(parsedres[0].shaders)
 
     len_comps = 0
     for c in comps:
         parsedres = parse_script(c)
-        len_comps += len(parsedres)
+        len_comps += len(parsedres[0].compositors)
 
-    print('[%s] materials, [%s] shader definitions, [%s] compositors' % (len_mats, len_progs, len_comps))
+    print(20*'-' + '\n[%s] materials, [%s] shader definitions, [%s] compositors' % (len_mats, len_progs, len_comps))
 
 
 if __name__ == '__main__':
     # search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
+    # # search_folder = r'C:\STISIM3'
     # show_stats(search_folder)
 
-    fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\data\Examples\Agent\cargo\exports\cargo.material'
+    fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\data\Examples\Clouds\clouds.material'
     parsedres = parse_script(fullpath)
-    print( parsedres.dump(indent='- ') )
+    print(parsedres.dump())
+    # script = parsedres[0]
+    # print(str(script))
+

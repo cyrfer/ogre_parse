@@ -62,17 +62,18 @@ class ShaderDeclaration(object):
             repr += '\n' + loc_indent + 'entry_point ' + self.entry_point
             repr += '\n' + loc_indent + 'target ' + self.target
 
-        if self.has_default_params:
-            repr += 2*'\n' + loc_indent + 'default_params'
-            repr += '\n' + loc_indent + '{'
+        # --- default_params --- #
+        repr += 2*'\n' + loc_indent + 'default_params'
+        repr += '\n' + loc_indent + '{'
 
-            for k, v in self.param_named_auto.items():
-                repr += '\n' + 2*loc_indent + 'param_named_auto ' + k + ' ' + v
+        for k, v in self.param_named_auto.items():
+            repr += '\n' + 2*loc_indent + 'param_named_auto ' + k + ' ' + v
 
-            for k, v in self.param_named.items():
-                repr += '\n' + 2*loc_indent + 'param_named ' + k + ' ' + v
+        for k, v in self.param_named.items():
+            repr += '\n' + 2*loc_indent + 'param_named ' + k + ' ' + v
 
-            repr += '\n' + loc_indent + '}'
+        repr += '\n' + loc_indent + '}'
+        # --- end default_params --- #
 
         repr += '\n' + '}'
 
