@@ -33,7 +33,7 @@ def parse_script(aPath):
         try:
             res = scriptReader.parseString(script)
         except Exception as e:
-            print('--an error occurred reading, with message:\n%s' % (aPath, str(e)))
+            print('--an error occurred reading,\n%s with message:\n%s' % (aPath, str(e)))
 
     return res
 
@@ -45,6 +45,9 @@ def show_stats(aFolder):
     len_mats = 0
     for m in mats:
         parsedres = parse_script(m)
+        if not parsedres:
+            continue
+
         script = parsedres[0]
         len_mats += len(script.materials)
 
@@ -70,13 +73,14 @@ def show_stats(aFolder):
 
 
 if __name__ == '__main__':
-    # search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
-    # # search_folder = r'C:\STISIM3'
-    # show_stats(search_folder)
+    search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
+    # search_folder = r'C:\STISIM3'
+    show_stats(search_folder)
 
-    fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\data\Examples\Clouds\clouds.material'
-    parsedres = parse_script(fullpath)
-    print(parsedres.dump())
-    # script = parsedres[0]
-    # print(str(script))
+    # fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\install\SystemsTech_SDK_rev1445\data\Examples\Particles\particles.material'
+    # parsedres = parse_script(fullpath)
+    # # print(parsedres.dump())
+    # print(len(parsedres[0].materials))
+    # # script = parsedres[0]
+    # # print(str(script))
 
