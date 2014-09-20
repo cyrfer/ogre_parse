@@ -374,6 +374,13 @@ pass
 }
 """
 
+test_pass_vertexcolour = '''
+pass
+{
+    diffuse vertexcolour
+}
+'''
+
 test_pass_tex = """
 pass
 {
@@ -691,6 +698,12 @@ class TestPass(unittest.TestCase):
         self.assertEqual(Color(vals=[0, 1, 0]), res.mpass.diffuse)
         self.assertEqual(Color(vals=[0, 0, 1]), res.mpass.emissive)
         self.assertEqual(Color(vals=[1, 1, 0]), res.mpass.specular)
+
+    def test_pass_vertexcolour(self):
+        # res = self.reader_.parseString(test_pass_vertexcolour)
+        #
+        # self.assertEqual('vertexcolour', res.mpass.ambient)
+        pass
 
     def test_pass_colour_write(self):
         res = self.reader_.parseString(test_pass_colour_write)
