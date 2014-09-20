@@ -45,6 +45,7 @@ class ReadTextureUnit(ReadBase):
         filtering = Group(Keyword('filtering').suppress() + propList)('filtering')
         scale = Group(Keyword('scale').suppress() + (real('x') + real('y')))('scale')
         colour_op = Group(Keyword('colour_op').suppress() + oneOf('replace add modulate alpha_blend'))('colour_op')
+        binding_type = Group(Keyword('binding_type').suppress() + oneOf('vertex fragment'))('binding_type')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
@@ -57,7 +58,8 @@ class ReadTextureUnit(ReadBase):
                             Optional(border_colour) & \
                             Optional(filtering) & \
                             Optional(scale) & \
-                            Optional(colour_op) \
+                            Optional(colour_op) & \
+                            Optional(binding_type) \
                             ) + \
                         rbrace
 

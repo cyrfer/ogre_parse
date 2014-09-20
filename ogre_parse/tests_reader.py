@@ -210,6 +210,14 @@ texture_unit
 }
 """
 
+test_texture_unit_binding_type = '''
+texture_unit
+{
+    texture file.ext
+    binding_type vertex
+}
+'''
+
 class TestTexture(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadTextureUnit()
@@ -264,6 +272,12 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual('alpha_blend', tu.colour_op)
+
+    def test_texture_unit_binding_type(self):
+        res = self.reader_.parseString(test_texture_unit_binding_type)
+        tu = res.texture_unit
+
+        self.assertEqual('vertex', tu.binding_type)
 
 
 # --------------------------------------------- #

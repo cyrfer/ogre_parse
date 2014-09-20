@@ -23,6 +23,7 @@ class MTextureUnit(object):
         self.filtering = 'linear linear point'
         self.scale = array.array('f', [1.0, 1.0])
         self.colour_op = 'modulate'
+        self.binding_type = 'fragment'
         self.indent = ''
 
         if tokens:
@@ -61,6 +62,9 @@ class MTextureUnit(object):
 
             if tu.colour_op:
                 self.colour_op = tu.colour_op[0]
+
+            if tu.binding_type:
+                self.binding_type = tu.binding_type[0]
 
 
 
