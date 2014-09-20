@@ -14,6 +14,7 @@ class MTextureUnit(object):
         self.name = ''
         self.resource_type = 'texture'
         self.resource_name = ''
+        self.image_format = ''
         # self.cubic_images = {'front': '', 'back': '', 'left': '', 'right': '', 'up': '', 'down': ''}
         # self.cubic_address_mode = ''
         self.texture_alias = ''
@@ -35,11 +36,22 @@ class MTextureUnit(object):
             if tu.required:
                 # assume it is 'texture' until I support 'anim_texture' and 'cubic_texture'
                 self.resource_type = tu.required.resource_type
-                self.resource_name = tu.required.resource_properties.name
 
-                # if tu.required.resource_properties.type:
-                #     # should be one of: 1d, 2d, 3d, cubic
-                #     self.resource_texture_type = tu.required.resource_properties.type
+                if tu.required.resource_properties:
+                    if tu.required.resource_properties.name:
+                        self.resource_name = tu.required.resource_properties.name
+
+                    # an optional sub-property on the required property
+                    if tu.required.resource_properties.format:
+                        self.image_format = tu.required.resource_properties.format
+
+                    # an optional sub-property on the required property
+                    # if tu.required.resource_properties.type:
+                    #     # should be one of: 1d, 2d, 3d, cubic
+                    #     self.resource_texture_type = tu.required.resource_properties.type
+                else:
+                    # TODO: throw exception because the resource name is required.
+                    pass
 
             if tu.texture_alias:
                 self.texture_alias = tu.texture_alias[0]

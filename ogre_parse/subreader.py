@@ -33,7 +33,7 @@ class ReadTextureUnit(ReadBase):
                       Optional( oneOf('1d 2d 3d cubic') )('type') + \
                       Optional(integer)('numMipMaps') + \
                       Optional(Literal('alpha'))('alpha') + \
-                      Optional(oneOf(imageFormats)) + \
+                      Optional(oneOf(imageFormats)('format')) + \
                       Optional(Literal('gamma')))
         textureResource = Group( textureResourceDecl + texPropList('resource_properties') )('required')
 

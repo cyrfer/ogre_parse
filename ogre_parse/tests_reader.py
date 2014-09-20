@@ -218,6 +218,14 @@ texture_unit
 }
 '''
 
+test_texture_unit_texture_format = '''
+texture_unit
+{
+    texture aureola.png PF_BYTE_LA
+    tex_address_mode clamp
+}
+'''
+
 class TestTexture(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadTextureUnit()
@@ -278,6 +286,12 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual('vertex', tu.binding_type)
+
+    def test_texture_unit_texture_format(self):
+        res = self.reader_.parseString(test_texture_unit_texture_format)
+        tu = res.texture_unit
+
+        self.assertEqual('PF_BYTE_LA', tu.image_format)
 
 
 # --------------------------------------------- #
