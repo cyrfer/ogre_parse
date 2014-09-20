@@ -122,10 +122,9 @@ class ReadScript(ReadBase):
         shader_declaration_ = ReadShaderDeclaration().getGrammar()
         compositor_ = ReadCompositor().getGrammar()
 
-        scriptDecl = ZeroOrMore( material_ )('materials') & \
-                     ZeroOrMore( shader_declaration_ )('shaders') & \
-                     ZeroOrMore( compositor_ )('compositors')
+        resourceType = material_ | compositor_ | shader_declaration_
 
+        scriptDecl = ZeroOrMore(resourceType)
         scriptDecl.setParseAction(Script)
 
         super(ReadScript, self).__init__(scriptDecl('script'))

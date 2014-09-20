@@ -1039,7 +1039,7 @@ material test_script_mat
 """
 
 test_script_2mat = """
-material matName
+material matName1
 {
     technique
     {
@@ -1077,286 +1077,48 @@ material test_script_mat // a comment here would  be cool
 // no problems with comments!
 """
 
-test_script_real = """
+test_script_mat_and_shader = """
 
-
-material NoMaterial
+fragment_program vertex_color_fp glsl
 {
-	technique
-	{
-        scheme forward_FF
-		pass
-		{
-            emissive 1 0 0 0
-		}
+    source vertex_color.frag
 
-	}
-
-	//technique d3d9_gbuffer
-	//{
-//       scheme deferred_gbuffer
-	//	pass
-	//	{
-//           emissive 1 0 0 0
-
-//           vertex_program_ref phong_hlsl
-//           {
-//           }
-
-//           fragment_program_ref gbuffer_hlsl
-//           {
-//           }
-	//	}
-
-	//}
-
-//   technique stencil
-//   {
-//       scheme stencil
-
-//       pass
-//       {
-//           emissive 1 0 0 1
-//       }
-//   }
-
+    default_params
+    {
+    }
 }
 
-
-
-material Cube_OgreMax
+material cloud_material
 {
-	//technique forward_FF
-	//{
-//       scheme forward_FF
-
-	//	pass Map#682
-	//	{
-	//		diffuse 0.588 0.588 0.588 1
-	//		specular 0 0 0 1 10
-	//		//emissive 1 1 1 1
-
-	//		texture_unit Map#683
-	//		{
-	//			texture cube_emissive_HDR.dds
-	//			filtering linear linear linear
-	//		}
-
-//           //vertex_program_ref phong_1UV_fog_ver120
-//           //{
-//           //}
-
-//           //fragment_program_ref BP_fog_emissive_alphaRejectEmissive
-//           //{
-//           //}
-	//	}
-	//}
-
-	//technique gbuffer
-	//{
-//       scheme deferred_gbuffer
-
-	//	pass Map#682
-	//	{
-	//		diffuse 0.588 0.588 0.588 1
-	//		specular 0 0 0 1 10
-	//		//emissive 1 1 1 1
-
-	//		texture_unit Map#683
-	//		{
-	//			texture cube_emissive_HDR.dds
-	//			filtering linear linear linear
-	//		}
-
-//           vertex_program_ref phong_1UV_hlsl
-//           {
-//           }
-
-//           fragment_program_ref gbuffer_1UV_emissive_hlsl
-//           {
-//           }
-//       }
-	//}
-
-    technique stencil
+    technique gl
     {
-        scheme stencil
-
         pass
         {
-            emissive 0 0.5 0 1
-
-            //vertex_program_ref phong_1UV_fog
-            //{
-            //}
-
-            //fragment_program_ref stencil_BP_fog_decal
-            //{
-            //}
         }
     }
 }
 
-
-
-material Cage_OgreMax
+fragment_program vertex_color_fp2 glsl
 {
-	technique
-	{
-        scheme forward_FF
+    source vertex_color.frag
 
-		pass
-		{
-			diffuse 0.588 0.588 0.588 1
-			specular 0 0 0 1 10
-		}
-
-	}
-
-	//technique d3d9_gbuffer
-	//{
-//       scheme deferred_gbuffer
-
-	//	pass
-	//	{
-	//		diffuse 0.588 0.588 0.588 1
-	//		specular 0 0 0 1 10
-
-//           vertex_program_ref phong_hlsl
-//           {
-//           }
-
-//           fragment_program_ref gbuffer_hlsl
-//           {
-//           }
-	//	}
-
-	//}
-
-
-//   technique stencil
-//   {
-//       scheme stencil
-
-//       pass
-//       {
-//           emissive 0 0 0.5 1
-
-//           vertex_program_ref phong_1UV_fog_ver120
-//           {
-//           }
-
-//           fragment_program_ref stencil_BP_fog_decal
-//           {
-//           }
-//       }
-//   }
+    default_params
+    {
+    }
 }
 
 
-
-material terrain_OgreMax
+material cloud_material2
 {
-	technique
-	{
-        scheme forward_FF
-
-		pass Map#686
-		{
-			ambient 0.588 0.588 0.588 1
-			diffuse 0.588 0.588 0.588 1
-			specular 0 0 0 1 10
-
-			texture_unit Map#687
-			{
-				texture central_lr_11_9.dds
-				filtering linear linear linear
-			}
-		}
-
-	}
-
-	//technique d3d9_gbuffer
-	//{
-//       scheme deferred_gbuffer
-
-	//	pass
-	//	{
-	//		ambient 0.588 0.588 0.588 1
-	//		diffuse 0.588 0.588 0.588 1
-	//		specular 0 0 0 1 10
-
-	//		texture_unit
-	//		{
-	//			texture central_lr_11_9.dds
-	//			filtering linear linear linear
-	//		}
-
-//           vertex_program_ref phong_1UV_hlsl
-//           {
-//           }
-
-//           fragment_program_ref gbuffer_1UV_decal_hlsl
-//           {
-//           }
-	//	}
-
-	//}
-
+    technique gl
+    {
+        pass
+        {
+        }
+    }
 }
-
-
-
-material terrain2_OgreMax
-{
-	technique forward_FF
-	{
-        scheme forward_FF
-
-		pass
-		{
-			specular 0.231373 0.231373 0.231373 1 10
-
-			texture_unit Map#687
-			{
-				texture central_lr_11_9.dds
-				filtering linear linear linear
-			}
-		}
-
-	}
-
-	//technique d3d9_gbuffer
-	//{
-//       scheme deferred_gbuffer
-
-	//	pass Map#686
-	//	{
-	//		specular 0.231373 0.231373 0.231373 1 10
-
-	//		texture_unit
-	//		{
-	//			texture central_lr_11_9.dds
-	//			filtering linear linear linear
-	//		}
-
-//           vertex_program_ref phong_1UV_hlsl
-//           {
-//           }
-
-//           fragment_program_ref gbuffer_1UV_decal_hlsl
-//           {
-//           }
-	//	}
-
-	//}
-
-}
-
 
 """
-
-
 
 
 class TestScript(unittest.TestCase):
@@ -1379,8 +1141,9 @@ class TestScript(unittest.TestCase):
 
         self.assertEqual(1, len(res.script.materials))
 
-    def test_script_real(self):
-        res = self.reader_.parseString(test_script_real)
+    def test_script_mat_and_shader(self):
+        res = self.reader_.parseString(test_script_mat_and_shader)
 
-        self.assertEqual(5, len(res.script.materials))
+        self.assertEqual(2, len(res.script.materials))
+        self.assertEqual(2, len(res.script.shaders))
 

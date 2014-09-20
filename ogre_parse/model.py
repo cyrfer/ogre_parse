@@ -157,6 +157,26 @@ class Material(object):
     __repr__ = __str__
 
 
+# hook this up to a 'ogre_parse.reader.ReadCompositor' instance.
+class Compositor(object):
+    def __init__(self, tokens):
+        self.name = ''
+
+        if tokens:
+            c = tokens.compositor
+
+            if c.name:
+                self.name = c.name
+
+    def __str__(self):
+        repr += '\n' + 'compositor ' + self.name
+        repr += '\n' + '{'
+        repr += '\n' + '}'
+        return repr
+
+    __repr__ = __str__
+
+
 # hook this up to an 'ogre_reader.reader.ReaderScript' instance.
 class Script(object):
     def __init__(self, tokens=None):
@@ -165,17 +185,18 @@ class Script(object):
         self.compositors = []
 
         if tokens:
-            if tokens.materials:
-                for m in tokens.materials:
-                    self.materials.append(m)
+            for t in tokens:
+                if isinstance(t, Material):
+                    self.materials.append(t)
+                    # print('added a material to the script!')
 
-            if tokens.shaders:
-                for s in tokens.shaders:
-                    self.shaders.append(s)
+                elif isinstance(t, ShaderDeclaration):
+                    self.shaders.append(t)
+                    # print('added a shader to the script!')
 
-            if tokens.compositors:
-                for c in tokens.compositors:
-                    self.compositors.append(c)
+                elif isinstance(t, Compositor):
+                    self.shaders.append(t)
+                    # print('added a compositor to the script!')
 
 
     def __str__(self):
@@ -194,5 +215,4 @@ class Script(object):
         return repr
 
     __repr__ = __str__
-
 
