@@ -54,7 +54,7 @@ coloraction = (color3spec ^ color4spec)
 colorspec = ( color3spec ^ color4spec )('args')
 specular_spec = Group( (Group(color3spec)('color') + Group(real)('shininess')) ^ (Group(color4spec)('color') + Group(real)('shininess')) )
 
-identspec = Word( alphas+"_", alphanums+"_$@#." )
+identspec = Word( alphas+"_", alphanums+"_-$@#." )
 
 truefalse_spec = oneOf('true false')
 onoff_val_spec = oneOf('on off')
