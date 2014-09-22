@@ -242,6 +242,15 @@ texture_unit
 }
 '''
 
+test_texture_unit_env_map = '''
+texture_unit
+{
+    texture file.ext
+    env_map cubic_reflection
+}
+'''
+
+
 class TestTexture(unittest.TestCase):
     def setUp(self):
         self.reader_ = ogre_parse.subreader.ReadTextureUnit()
@@ -320,6 +329,12 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual('PF_BYTE_LA', tu.image_format)
+
+    def test_texture_unit_env_map(self):
+        res = self.reader_.parseString(test_texture_unit_env_map)
+        tu = res.texture_unit
+
+        self.assertEqual('cubic_reflection', tu.env_map)
 
 
 # --------------------------------------------- #

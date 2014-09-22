@@ -27,6 +27,7 @@ class MTextureUnit(object):
         self.colour_op_ex = ''
         self.colour_op_multipass_fallback = ''
         self.binding_type = 'fragment'
+        self.env_map = 'off'
         self.indent = ''
 
         if tokens:
@@ -88,6 +89,9 @@ class MTextureUnit(object):
 
             if tu.binding_type:
                 self.binding_type = tu.binding_type[0]
+
+            if tu.env_map:
+                self.env_map = tu.env_map[0]
 
 
 

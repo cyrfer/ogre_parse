@@ -54,12 +54,13 @@ class ReadTextureUnit(ReadBase):
         binding_type = Group(Keyword('binding_type').suppress() + oneOf('vertex fragment'))('binding_type')
         colour_op_ex = Group(Keyword('colour_op_ex').suppress() + colour_op_ex_spec)('colour_op_ex')
         colour_op_multipass_fallback = Group(Keyword('colour_op_multipass_fallback').suppress() + fallback_spec)('colour_op_multipass_fallback')
+        env_map = Group(Keyword('env_map').suppress() + oneOf('off spherical planar cubic_reflection cubic_normal'))('env_map')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
                         lbrace + \
                             ( \
-                            (textureResource | animResource | cubicResource) & \
+                            Optional(textureResource | animResource | cubicResource) & \
                             Optional(alias) & \
                             Optional(coord_set) & \
                             Optional(address_mode) & \
@@ -69,7 +70,8 @@ class ReadTextureUnit(ReadBase):
                             Optional(colour_op) & \
                             Optional(binding_type) & \
                             Optional(colour_op_ex) & \
-                            Optional(colour_op_multipass_fallback) \
+                            Optional(colour_op_multipass_fallback) & \
+                            Optional(env_map) \
                             ) + \
                         rbrace
 
