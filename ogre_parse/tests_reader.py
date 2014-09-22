@@ -1061,7 +1061,7 @@ vertex_program billboard_vColor_1UV_vp glsl
         param_named_auto Mp projection_matrix
 
         // custom parameter
-        param_named billboard_radius float 1.0
+        param_named billboard_radius float -1.0
     }
 }
 '''
@@ -1111,6 +1111,7 @@ class TestShaderDeclaration(unittest.TestCase):
         self.assertEqual('glsl', res.shader.language)
         self.assertEqual('billboard_vColor_1UV_vp', res.shader.name)
         self.assertEqual('billboard.vert', res.shader.source)
+        self.assertEqual('float -1.0', res.shader.param_named['billboard_radius'])
 
     def test_shader_frag_glsl(self):
         res = self.reader_.parseString(test_shader_frag_glsl)

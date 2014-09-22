@@ -36,13 +36,11 @@ EOL = LineEnd().suppress()
 
 # another option for floating point parsing:
 # http://pyparsing.wikispaces.com/share/view/33656348
-realspec = Regex(r"\d+\.\d*")
-    # Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums)))
+# Regex(r'\d+(\.\d*)?([eE]\d+)?')
+realspec = Combine(Optional('-') + Regex(r"\d+(\.\d*)?"))
 
 int_or_real_spec = integerspec ^ realspec
 real = (int_or_real_spec).setParseAction(lambda t: float(t[0]))
-#Combine(Optional(oneOf('+ -')) + Word(nums) + '.' + Optional(Word(nums)))
-# Regex(r"\d+\.\d*") #
 
 propVal = realspec | integerspec | ident
 propList = Group(OneOrMore(~EOL + propVal))
