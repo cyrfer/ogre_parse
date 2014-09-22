@@ -54,6 +54,8 @@ coloraction = (color3spec ^ color4spec)
 colorspec = ( color3spec ^ color4spec )('args')
 specular_spec = Group( (Group(color3spec)('color') + Group(real)('shininess')) ^ (Group(color4spec)('color') + Group(real)('shininess')) )
 
+scene_blend_long_spec = oneOf('one zero dest_colour src_colour one_minus_dest_colour one_minus_src_colour dest_alpha src_alpha one_minus_dest_alpha one_minus_src_alpha')
+
 identspec = Word( alphas+"_", alphanums+"_-$@#." )
 
 truefalse_spec = oneOf('true false')

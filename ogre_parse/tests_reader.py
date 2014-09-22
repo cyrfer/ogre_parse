@@ -210,6 +210,22 @@ texture_unit
 }
 """
 
+test_texture_unit_colour_op_ex = '''
+texture_unit
+{
+    texture file.ext
+    colour_op_ex add_signed src_manual src_current 0.5
+}
+'''
+
+test_texture_unit_fallback = '''
+texture_unit
+{
+    texture file.ext
+    colour_op_multipass_fallback one one_minus_dest_alpha
+}
+'''
+
 test_texture_unit_binding_type = '''
 texture_unit
 {
@@ -280,6 +296,18 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual('alpha_blend', tu.colour_op)
+
+    def test_texture_unit_colour_op_ex(self):
+        res = self.reader_.parseString(test_texture_unit_colour_op_ex)
+        tu = res.texture_unit
+
+        self.assertEqual('add_signed src_manual src_current 0.5', tu.colour_op_ex)
+
+    def test_texture_unit_fallback(self):
+        res = self.reader_.parseString(test_texture_unit_fallback)
+        tu = res.texture_unit
+
+        self.assertEqual('one one_minus_dest_alpha', tu.colour_op_multipass_fallback)
 
     def test_texture_unit_binding_type(self):
         res = self.reader_.parseString(test_texture_unit_binding_type)

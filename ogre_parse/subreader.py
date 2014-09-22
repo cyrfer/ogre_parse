@@ -37,6 +37,12 @@ class ReadTextureUnit(ReadBase):
                       Optional(Literal('gamma')))
         textureResource = Group( textureResourceDecl + texPropList('resource_properties') )('required')
 
+        c_op_src_spec = oneOf('src_current src_texture src_diffuse src_specular src_manual')
+        c_op_spec = oneOf('source1 source2 modulate modulate_x2 modulate_x4 add add_signed add_smooth subtract blend_diffuse_alpha blend_texture_alpha blend_current_alpha blend_manual dotproduct blend_diffuse_colour')
+        colour_op_ex_spec = Group(c_op_spec('operation') + c_op_src_spec('source1') + c_op_src_spec('source2') + Optional(real('manual_factor')) + Optional(coloraction('manual_colour1')) + Optional(coloraction('manual_colour2')))
+
+        fallback_spec = Group(scene_blend_long_spec('src_factor') + scene_blend_long_spec('dest_factor'))
+
         # define the optional members
         alias = Group(Keyword('texture_alias').suppress() + identspec)('texture_alias')
         coord_set = Group(Keyword('tex_coord_set').suppress() + integer)('tex_coord_set')
@@ -46,6 +52,8 @@ class ReadTextureUnit(ReadBase):
         scale = Group(Keyword('scale').suppress() + (real('x') + real('y')))('scale')
         colour_op = Group(Keyword('colour_op').suppress() + oneOf('replace add modulate alpha_blend'))('colour_op')
         binding_type = Group(Keyword('binding_type').suppress() + oneOf('vertex fragment'))('binding_type')
+        colour_op_ex = Group(Keyword('colour_op_ex').suppress() + colour_op_ex_spec)('colour_op_ex')
+        colour_op_multipass_fallback = Group(Keyword('colour_op_multipass_fallback').suppress() + fallback_spec)('colour_op_multipass_fallback')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
@@ -59,7 +67,9 @@ class ReadTextureUnit(ReadBase):
                             Optional(filtering) & \
                             Optional(scale) & \
                             Optional(colour_op) & \
-                            Optional(binding_type) \
+                            Optional(binding_type) & \
+                            Optional(colour_op_ex) & \
+                            Optional(colour_op_multipass_fallback) \
                             ) + \
                         rbrace
 
@@ -104,7 +114,6 @@ class ReadPass(ReadBase):
         # scene_blend
         # TODO: add action to turn short format into long format
         scene_blend_short = oneOf('add modulate colour_blend alpha_blend')
-        scene_blend_long_spec = oneOf('one zero dest_colour src_colour one_minus_dest_colour one_minus_src_colour dest_alpha src_alpha one_minus_dest_alpha one_minus_src_alpha')
         scene_blend_long = scene_blend_long_spec + scene_blend_long_spec
         scene_blend = Group(Keyword('scene_blend').suppress() + (scene_blend_short | scene_blend_long))('scene_blend')
 

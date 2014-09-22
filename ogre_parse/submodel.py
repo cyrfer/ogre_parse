@@ -24,6 +24,8 @@ class MTextureUnit(object):
         self.filtering = 'linear linear point'
         self.scale = array.array('f', [1.0, 1.0])
         self.colour_op = 'modulate'
+        self.colour_op_ex = ''
+        self.colour_op_multipass_fallback = ''
         self.binding_type = 'fragment'
         self.indent = ''
 
@@ -74,6 +76,15 @@ class MTextureUnit(object):
 
             if tu.colour_op:
                 self.colour_op = tu.colour_op[0]
+
+            if tu.colour_op_ex:
+                # tu.colour_op_ex can contain mixed types, e.g. string and float
+                # so we just store a string representation until there is a requirement to use
+                # individual elements of the property.
+                self.colour_op_ex = ' '.join(str(x) for x in tu.colour_op_ex[0].asList())
+
+            if tu.colour_op_multipass_fallback:
+                self.colour_op_multipass_fallback = ' '.join(tu.colour_op_multipass_fallback[0].asList())
 
             if tu.binding_type:
                 self.binding_type = tu.binding_type[0]
