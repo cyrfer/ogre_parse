@@ -55,6 +55,7 @@ class ReadTextureUnit(ReadBase):
         colour_op_ex = Group(Keyword('colour_op_ex').suppress() + colour_op_ex_spec)('colour_op_ex')
         colour_op_multipass_fallback = Group(Keyword('colour_op_multipass_fallback').suppress() + fallback_spec)('colour_op_multipass_fallback')
         env_map = Group(Keyword('env_map').suppress() + oneOf('off spherical planar cubic_reflection cubic_normal'))('env_map')
+        content_type = Group(Keyword('content_type').suppress() + oneOf('named shadow compositor') + Optional(identspec('compositor') + identspec('texture') + Optional(integer('MRT'))))('content_type')
 
         # --- define the parser
         textureDecl = Keyword('texture_unit').suppress() + Optional(ident)('name') + \
@@ -71,7 +72,8 @@ class ReadTextureUnit(ReadBase):
                             Optional(binding_type) & \
                             Optional(colour_op_ex) & \
                             Optional(colour_op_multipass_fallback) & \
-                            Optional(env_map) \
+                            Optional(env_map) & \
+                            Optional(content_type) \
                             ) + \
                         rbrace
 
@@ -92,8 +94,10 @@ class ReadShaderReference(ReadBase):
 
         shaderRefDecl = shaderRefSpec('stage') + ident('resource_name') + \
                             lbrace + \
-                                dictOf( param_named_auto_spec, propList )('param_named_auto') + \
-                                dictOf( param_named_spec,      propList )('param_named') + \
+                            ( \
+                                dictOf( param_named_auto_spec, propList )('param_named_auto') & \
+                                dictOf( param_named_spec,      propList )('param_named') \
+                            ) + \
                             rbrace
                                 # (dictOf(param_named_auto, propList('system_params'))('param_named_auto')) + \
         shader_ref_ = Group(shaderRefDecl)

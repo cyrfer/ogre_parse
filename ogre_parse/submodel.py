@@ -28,6 +28,7 @@ class MTextureUnit(object):
         self.colour_op_multipass_fallback = ''
         self.binding_type = 'fragment'
         self.env_map = 'off'
+        self.content_type = 'name'
         self.indent = ''
 
         if tokens:
@@ -92,6 +93,9 @@ class MTextureUnit(object):
 
             if tu.env_map:
                 self.env_map = tu.env_map[0]
+
+            if tu.content_type:
+                self.content_type = ' '.join(str(x) for x in tu.content_type.asList())
 
 
 

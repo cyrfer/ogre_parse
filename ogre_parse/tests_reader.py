@@ -250,6 +250,14 @@ texture_unit
 }
 '''
 
+test_texture_unit_content_type = '''
+texture_unit
+{
+    texture file.ext
+    content_type compositor DepthCompositor OutputTexture 0
+}
+'''
+
 
 class TestTexture(unittest.TestCase):
     def setUp(self):
@@ -335,6 +343,12 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual('cubic_reflection', tu.env_map)
+
+    def test_texture_unit_content_type(self):
+        res = self.reader_.parseString(test_texture_unit_content_type)
+        tu = res.texture_unit
+
+        self.assertEqual('compositor DepthCompositor OutputTexture 0', tu.content_type)
 
 
 # --------------------------------------------- #
