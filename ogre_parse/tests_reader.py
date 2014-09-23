@@ -176,6 +176,15 @@ texture_unit
 }
 """
 
+test_texture_unit_address_mode_extended = '''
+texture_unit
+{
+    texture file.ext
+    tex_address_mode clamp clamp clamp
+}
+'''
+
+
 test_texture_unit_texture_params = '''
 texture_unit
 {
@@ -293,6 +302,13 @@ class TestTexture(unittest.TestCase):
         tu = res.texture_unit
 
         self.assertEqual( 'clamp', tu.tex_address_mode )
+
+    def test_texture_unit_address_mode_extended(self):
+        res = self.reader_.parseString(test_texture_unit_address_mode_extended)
+        tu = res.texture_unit
+
+        self.assertEqual( 'clamp clamp clamp', tu.tex_address_mode )
+
 
     def test_texture_unit_texturealias(self):
         res = self.reader_.parseString(test_texture_unit_texturealias)

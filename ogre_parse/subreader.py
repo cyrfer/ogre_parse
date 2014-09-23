@@ -37,6 +37,8 @@ class ReadTextureUnit(ReadBase):
                       Optional(Literal('gamma')))
         textureResource = Group( textureResourceDecl + texPropList('resource_properties') )('required')
 
+        addr_mode_val = oneOf('wrap clamp mirror border')
+        addr_mode_spec = addr_mode_val + Optional(addr_mode_val + Optional(addr_mode_val))
         c_op_src_spec = oneOf('src_current src_texture src_diffuse src_specular src_manual')
         c_op_spec = oneOf('source1 source2 modulate modulate_x2 modulate_x4 add add_signed add_smooth subtract blend_diffuse_alpha blend_texture_alpha blend_current_alpha blend_manual dotproduct blend_diffuse_colour')
         colour_op_ex_spec = Group(c_op_spec('operation') + c_op_src_spec('source1') + c_op_src_spec('source2') + Optional(real('manual_factor')) + Optional(coloraction('manual_colour1')) + Optional(coloraction('manual_colour2')))
@@ -46,7 +48,7 @@ class ReadTextureUnit(ReadBase):
         # define the optional members
         alias = Group(Keyword('texture_alias').suppress() + identspec)('texture_alias')
         coord_set = Group(Keyword('tex_coord_set').suppress() + integer)('tex_coord_set')
-        address_mode = Group(Keyword('tex_address_mode').suppress() + oneOf('wrap clamp mirror border'))('tex_address_mode')
+        address_mode = Group(Keyword('tex_address_mode').suppress() + addr_mode_spec)('tex_address_mode')
         border_colour = Group(Keyword('tex_border_colour').suppress() + coloraction)('tex_border_colour')
         filtering = Group(Keyword('filtering').suppress() + propList)('filtering')
         scale = Group(Keyword('scale').suppress() + (real('x') + real('y')))('scale')

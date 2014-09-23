@@ -64,7 +64,7 @@ class MTextureUnit(object):
                 self.tex_coord_set = tu.tex_coord_set
 
             if tu.tex_address_mode:
-                self.tex_address_mode = tu.tex_address_mode[0]
+                self.tex_address_mode = ' '.join(tu.tex_address_mode)
 
             if tu.tex_border_colour:
                 self.tex_border_colour = tu.tex_border_colour
