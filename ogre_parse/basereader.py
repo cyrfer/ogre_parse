@@ -20,7 +20,7 @@ def printAll(s, l, toks):
 # convenient definitions
 # TODO: find a way that does not pollute the global namespace
 EOL = LineEnd().suppress()
-ident = Word( alphanums+"_", alphanums+"_-/$@#." )
+ident = Word( alphanums+"_", alphanums+"_-/$@#.()" )
 identspec = Word( alphanums+"_", alphanums+"_-$@#." )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
