@@ -40,7 +40,7 @@ def parse_script(aPath):
 
 def show_stats(aFolder):
     (mats, progs, comps) = script_search(aFolder)
-    print('ogre statistics, under folder, %s, \nreading files: [%s] material, [%s] program, [%s] compositor' % (search_folder, len(mats), len(progs), len(comps)))
+    print(20*'-' + '\nogre statistics, under folder, %s, \nreading files: [%s] material, [%s] program, [%s] compositor\n' % (search_folder, len(mats), len(progs), len(comps)) + 20*'-')
 
     len_mats = 0
     for m in mats:
@@ -62,19 +62,27 @@ def show_stats(aFolder):
     len_progs = 0
     for p in progs:
         parsedres = parse_script(p)
-        len_progs += len(parsedres[0].shaders)
+        if not parsedres:
+            continue
+
+        script = parsedres[0]
+        len_progs += len(script.shaders)
 
     len_comps = 0
     for c in comps:
         parsedres = parse_script(c)
-        len_comps += len(parsedres[0].compositors)
+        if not parsedres:
+            continue
+
+        script = parsedres[0]
+        len_comps += len(script.compositors)
 
     print(20*'-' + '\n[%s] materials, [%s] shader definitions, [%s] compositors' % (len_mats, len_progs, len_comps))
 
 
 if __name__ == '__main__':
-    search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
-    # search_folder = r'C:\STISIM3'
+    # search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
+    search_folder = r'C:\STISIM3\Data'
     show_stats(search_folder)
 
     # fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\install\SystemsTech_SDK_rev1445\data\Examples\Particles\particles.material'
