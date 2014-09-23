@@ -124,7 +124,7 @@ class ReadScript(ReadBase):
 
         resourceType = material_ | compositor_ | shader_declaration_
 
-        scriptDecl = ZeroOrMore(resourceType)
+        scriptDecl = ZeroOrMore(resourceType) + StringEnd()
         scriptDecl.setParseAction(Script)
 
         super(ReadScript, self).__init__(scriptDecl('script'))
