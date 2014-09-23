@@ -20,7 +20,8 @@ def printAll(s, l, toks):
 # convenient definitions
 # TODO: find a way that does not pollute the global namespace
 EOL = LineEnd().suppress()
-ident = Word( alphas+"_", alphanums+"_/$@#." )
+ident = Word( alphas+"_", alphanums+"_-/$@#." )
+identspec = Word( alphas+"_", alphanums+"_-$@#." )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
 
@@ -53,8 +54,6 @@ colorspec = ( color3spec ^ color4spec )('args')
 specular_spec = Group( (Group(color3spec)('color') + Group(real)('shininess')) ^ (Group(color4spec)('color') + Group(real)('shininess')) )
 
 scene_blend_long_spec = oneOf('one zero dest_colour src_colour one_minus_dest_colour one_minus_src_colour dest_alpha src_alpha one_minus_dest_alpha one_minus_src_alpha')
-
-identspec = Word( alphas+"_", alphanums+"_-$@#." )
 
 truefalse_spec = oneOf('true false')
 onoff_val_spec = oneOf('on off')
