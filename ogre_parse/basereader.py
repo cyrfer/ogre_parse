@@ -21,7 +21,7 @@ def printAll(s, l, toks):
 # TODO: find a way that does not pollute the global namespace
 EOL = LineEnd().suppress()
 ident = Word( alphanums+"_", alphanums+"_-/$@#." )
-identspec = Word( alphas+"_", alphanums+"_-$@#." )
+identspec = Word( alphanums+"_", alphanums+"_-$@#." )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
 
