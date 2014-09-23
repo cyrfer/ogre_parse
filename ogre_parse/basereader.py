@@ -20,7 +20,7 @@ def printAll(s, l, toks):
 # convenient definitions
 # TODO: find a way that does not pollute the global namespace
 EOL = LineEnd().suppress()
-ident = Word( alphas+"_", alphanums+"_-/$@#." )
+ident = Word( alphanums+"_", alphanums+"_-/$@#." )
 identspec = Word( alphas+"_", alphanums+"_-$@#." )
 lbrace = Literal("{").suppress()
 rbrace = Literal("}").suppress()
@@ -38,7 +38,11 @@ EOL = LineEnd().suppress()
 # another option for floating point parsing:
 # http://pyparsing.wikispaces.com/share/view/33656348
 # Regex(r'\d+(\.\d*)?([eE]\d+)?')
-realspec = Combine(Optional('-') + Regex(r"\d+(\.\d*)?"))
+# realspec = Combine(Optional('-') + Regex(r"\d+(\.\d*)?"))
+realspec_frac_only = Literal('.') + Word(nums) #Regex(r".\d")
+realspec_whole_only = Word(nums) #Regex(r"\d")
+realspace_whole_and_frac = Regex(r"\d+(\.\d*)?")
+realspec = Combine(Optional('-') + (realspec_frac_only ^ realspec_whole_only ^ realspace_whole_and_frac))
 
 int_or_real_spec = integerspec ^ realspec
 real = (int_or_real_spec).setParseAction(lambda t: float(t[0]))

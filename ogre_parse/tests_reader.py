@@ -86,10 +86,10 @@ class TestColor(unittest.TestCase):
         self.assertEqual(c, res.args)
 
 # --------------------------------------------- #
-test_ambient_3 = 'ambient 0.1 0.2 0.3'
-test_diffuse_3 = 'diffuse 0.1 0.2 0.3'
-test_emissive_3 = 'emissive 0.1 0.2 0.3'
-test_specular_3 = 'specular 0.1 0.2 0.3 25.0'
+test_ambient_3 = 'ambient 1 .2 0.3'
+test_diffuse_3 = 'diffuse 1 .2 0.3'
+test_emissive_3 = 'emissive 1 .2 0.3'
+test_specular_3 = 'specular 1 .2 0.3 25.0'
 
 test_ambient_4 = 'ambient 0.1 0.2 0.3 1.0'
 test_diffuse_4 = 'diffuse 0.1 0.2 0.3 1.0'
@@ -110,9 +110,8 @@ class TestColorParsers(unittest.TestCase):
         emi3 = self.emissive.parseString(test_emissive_3)
         spe3 = self.specular.parseString(test_specular_3)
 
-        c = ogre_parse.basemodel.Color(vals=[0.1, 0.2, 0.3, 1.0])
+        c = ogre_parse.basemodel.Color(vals=[1.0, 0.2, 0.3, 1.0])
 
-        # desired usage in comments
         self.assertEqual(c, amb3.ambient[0])
         self.assertEqual(c, dif3.diffuse[0])
         self.assertEqual(c, emi3.emissive[0])
