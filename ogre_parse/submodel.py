@@ -60,7 +60,7 @@ class MTextureUnit(object):
                 self.texture_alias = tu.texture_alias[0]
 
             if tu.tex_coord_set:
-                self.tex_coord_set = tu.tex_coord_set
+                self.tex_coord_set = tu.tex_coord_set[0]
 
             if tu.tex_address_mode:
                 self.tex_address_mode = ' '.join(tu.tex_address_mode)
@@ -127,11 +127,26 @@ class MTextureUnit(object):
         if (self.filtering != 'bilinear') and (self.filtering != 'linear linear point'):
             repr += '\n' + self.indent + loc_indent + 'filtering ' + self.filtering
 
+        if self.colour_op_ex:
+            repr += '\n' + self.indent + loc_indent + 'colour_op_ex ' + self.colour_op_ex
+
+        if self.colour_op_multipass_fallback:
+            repr += '\n' + self.indent + loc_indent + 'colour_op_multipass_fallback ' + self.colour_op_multipass_fallback
+
         if not float_eq(self.scale[0], 1.0) or not float_eq(self.scale[0], 1.0):
             repr += '\n' + self.indent + loc_indent + 'scale ' + str(self.scale[0]) + str(self.scale[1])
 
         if self.colour_op != 'modulate':
             repr += '\n' + self.indent + loc_indent + 'colour_op' + self.colour_op
+
+        if self.env_map != 'off':
+            repr += '\n' + self.indent + loc_indent + 'env_map ' + self.env_map
+
+        if self.binding_type != 'fragment':
+            repr += '\n' + self.indent + loc_indent + 'binding_type ' + self.binding_type
+
+        if self.content_type != 'name':
+            repr += '\n' + self.indent + loc_indent + 'content_type ' + self.content_type
 
         repr += '\n' + self.indent + '}'
 
@@ -430,6 +445,9 @@ class MPass(object):
             repr += '\n' + self.indent + loc_indent + 'specular ' + str(self.specular)\
                     + ' ' + fmt.format(self.shininess).rstrip('0').rstrip('.')
 
+        if self.lighting != 'on':
+            repr += '\n' + self.indent + loc_indent + 'lighting ' + self.lighting
+
         if self.alpha_rejection_function != 'always_pass':
             repr += '\n' + self.indent + loc_indent + 'alpha_rejection ' + self.alpha_rejection_function + ' ' + str(int(self.alpha_rejection_threshold))
 
@@ -458,6 +476,9 @@ class MPass(object):
 
         if self.cull_software != 'back':
             repr += '\n' + self.indent + loc_indent + 'cull_software ' + self.cull_software
+
+        if self.transparent_sorting != 'on':
+            repr += '\n' + self.indent + loc_indent + 'transparent_sorting ' + self.transparent_sorting
 
         for tu in self.texture_units:
             tu.indent = self.indent + loc_indent
@@ -542,7 +563,7 @@ class MTechnique(object):
             p.indent = self.indent + loc_indent
             repr += '\n' + str(p)
 
-        repr += '\n' + self.indent + '}\n'
+        repr += '\n' + self.indent + '}'
 
         return repr
 

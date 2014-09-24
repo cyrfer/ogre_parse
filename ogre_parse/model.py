@@ -150,7 +150,7 @@ class Material(object):
             t.indent = loc_indent
             repr += str(t)
 
-        repr += '}\n'
+        repr += '\n' + '}\n'
 
         return repr
 
