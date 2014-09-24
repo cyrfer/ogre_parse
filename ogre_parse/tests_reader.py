@@ -503,6 +503,29 @@ pass
 }
 """
 
+test_pass_shader_tex_shader_tex = '''
+pass m#705
+{
+    vertex_program_ref myVertShader
+    {
+    }
+
+    texture_unit decal
+    {
+         texture file1.ext
+    }
+
+    fragment_program_ref myFragShader
+    {
+    }
+
+    texture_unit reflection
+    {
+         texture file2.ext
+    }
+}
+'''
+
 test_pass_blend = """
 pass
 {
@@ -682,11 +705,14 @@ class TestPass(unittest.TestCase):
     def test_pass_tex_2shader(self):
         res = self.reader_.parseString(test_pass_tex_2shader)
 
-        len_tex = len(res.mpass.texture_units)
-        self.assertEqual(len_tex, 1)
+        self.assertEqual(1, len(res.mpass.texture_units))
+        self.assertEqual(2, len(res.mpass.shaders))
 
-        len_shader = len(res.mpass.shaders)
-        self.assertEqual(len_shader, 2)
+    def test_pass_shader_tex_shader_tex(self):
+        res = self.reader_.parseString(test_pass_shader_tex_shader_tex)
+
+        self.assertEqual(2, len(res.mpass.texture_units))
+        self.assertEqual(2, len(res.mpass.shaders))
 
     def test_pass_blend(self):
         res = self.reader_.parseString(test_pass_blend)

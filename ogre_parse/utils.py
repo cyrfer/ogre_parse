@@ -95,7 +95,7 @@ def show_stats(a_folder):
 
 if __name__ == '__main__':
     # search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
-    # search_folder = r'C:\STISIM3\Data'
+    search_folder = r'C:\STISIM3\Data\Miscellaneous'
     show_stats(search_folder)
 
     # fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\install\SystemsTech_SDK_rev1445\data\Examples\Particles\particles.material'
