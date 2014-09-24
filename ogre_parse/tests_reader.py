@@ -16,13 +16,6 @@ import pyparsing
 from pyparsing import *
 import math
 
-def float_eq(a, b, epsilon=1e-7):
-    # print('float_eq: type(a)=%s, type(b)=%s' % (type(a), type(b)))
-    # print('float_eq(%s, %s)' % (a,b))
-    diff_val = math.fabs(a - b)
-    # print('float_eq: diff_val = %s' % diff_val)
-    return  diff_val < epsilon
-
 
 # --------------------------------------------- #
 

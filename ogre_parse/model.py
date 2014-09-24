@@ -135,7 +135,7 @@ class Material(object):
         if self.lod_values:
             repr += '\n' + loc_indent + 'lod_values '
             for lod in self.lod_values:
-                repr += lod
+                repr += ' ' + str(lod)
 
         if self.receive_shadows != 'on':
             repr += '\n' + loc_indent + self.receive_shadows
@@ -143,7 +143,7 @@ class Material(object):
         if self.transparency_casts_shadows != 'off':
             repr += '\n' + loc_indent + self.transparency_casts_shadows
 
-        for k,v in self.texture_alias.items():
+        for k, v in self.texture_alias.items():
             repr += '\n' + loc_indent + k + ' ' + v
 
         for t in self.techniques:

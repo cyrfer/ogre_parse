@@ -4,7 +4,6 @@ __author__ = 'jgrant'
 from ogre_parse.basemodel import *
 
 from pyparsing import ParseException
-import math
 
 
 
@@ -101,41 +100,40 @@ class MTextureUnit(object):
 
     def __str__(self):
         loc_indent = 4*' '
-        repr = self.indent + 'texture_unit' + ((' ' + self.name) if self.name else '') + '\n{\n'
+        repr = self.indent + 'texture_unit' + ((' ' + self.name) if self.name else '')
+        repr += '\n' + self.indent + '{'
 
         if self.texture_alias:
-            repr += self.indent + loc_indent + 'texture_alias ' + self.texture_alias + '\n'
+            repr += '\n' + self.indent + loc_indent + 'texture_alias ' + self.texture_alias
 
         # check the resource type
         if self.resource_type == 'texture':
-            repr += self.indent + loc_indent + self.resource_type + ' ' + self.resource_name +\
-                    '\n'
-                    # (self.resource_texture_type if (self.resource_texture_type!='2d') else '') +\
+            repr += '\n' + self.indent + loc_indent + self.resource_type + ' ' + self.resource_name
+                    # (self.resource_texture_type if (self.resource_texture_type!='2d') else '')
         elif self.resource_type == 'cubic_texture':
             pass
         elif self.resource_type == 'anim_texture':
             pass
 
         if self.tex_coord_set != int(0):
-            repr += self.indent + loc_indent + 'tex_coord_set ' + str(self.tex_coord_set) + '\n'
+            repr += '\n' + self.indent + loc_indent + 'tex_coord_set ' + str(self.tex_coord_set)
 
         if self.tex_address_mode != 'wrap':
-            repr += self.indent + loc_indent + 'tex_address_mode ' + self.tex_address_mode + '\n'
+            repr += '\n' + self.indent + loc_indent + 'tex_address_mode ' + self.tex_address_mode
 
         if self.tex_border_colour != Color(vals=[0.0, 0.0, 0.0, 1.0]):
-            repr += self.indent + loc_indent + 'tex_border_colour ' + str(self.tex_border_colour) + '\n'
+            repr += '\n' + self.indent + loc_indent + 'tex_border_colour ' + str(self.tex_border_colour) + '\n'
 
         if (self.filtering != 'bilinear') and (self.filtering != 'linear linear point'):
-            repr += self.indent + loc_indent + 'filtering ' + self.filtering + '\n'
+            repr += '\n' + self.indent + loc_indent + 'filtering ' + self.filtering
 
-        eps = 1e-7
-        if (math.fabs(self.scale[0]-1.0) > eps) or (math.fabs(self.scale[1]-1.0) > eps):
-            repr += self.indent + loc_indent + 'scale ' + str(self.scale[0]) + str(self.scale[1]) + '\n'
+        if not float_eq(self.scale[0], 1.0) or not float_eq(self.scale[0], 1.0):
+            repr += '\n' + self.indent + loc_indent + 'scale ' + str(self.scale[0]) + str(self.scale[1])
 
         if self.colour_op != 'modulate':
-            repr += self.indent + loc_indent + 'colour_op' + self.colour_op + '\n'
+            repr += '\n' + self.indent + loc_indent + 'colour_op' + self.colour_op
 
-        repr += self.indent + '}\n'
+        repr += '\n' + self.indent + '}'
 
         return repr
 
@@ -187,13 +185,14 @@ class MShaderRef(object):
         loc_indent = 4*' '
         repr = ''
 
-        repr += self.indent + self.stage + ' ' + self.resource_name + '\n{'
+        repr += '\n' + self.indent + self.stage + ' ' + self.resource_name
+        repr += '\n' + self.indent + '{'
 
         # show all the 'auto' params
         for k,v in self.param_named_auto.items():
             repr += '\n' + self.indent + loc_indent + str(k) + ' ' + str(v)
 
-        repr += '\n' + self.indent + '}\n'
+        repr += '\n' + self.indent + '}'
         return repr
 
     # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
@@ -412,27 +411,63 @@ class MPass(object):
 
 
     def __str__(self):
-        repr = self.indent + 'pass' + ((' ' + self.name) if self.name else '') + '\n' + self.indent + '{\n'
+        repr = self.indent + 'pass' + ((' ' + self.name) if self.name else '')
+        repr += '\n' + self.indent + '{'
 
         loc_indent = 4*' '
 
         if self.ambient != Color(vals=[1, 1, 1, 1]):
-            repr += self.indent + loc_indent + 'ambient ' + str(self.ambient) + '\n'
+            repr += '\n' + self.indent + loc_indent + 'ambient ' + str(self.ambient)
 
         if self.diffuse != Color(vals=[1, 1, 1, 1]):
-            repr += self.indent + loc_indent + 'diffuse ' + str(self.diffuse) + '\n'
+            repr += '\n' + self.indent + loc_indent + 'diffuse ' + str(self.diffuse)
 
         if self.emissive != Color(vals=[0, 0, 0, 0]):
-            repr += self.indent + loc_indent + 'emissive ' + str(self.emissive) + '\n'
+            repr += '\n' + self.indent + loc_indent + 'emissive ' + str(self.emissive)
 
         if (self.specular != Color(vals=[0, 0, 0, 0])) or (self.shininess != 0.0):
-            repr += self.indent + loc_indent + 'specular ' + str(self.specular) + ' ' + str(self.shininess) + '\n'
+            fmt = '{0:.6f}'
+            repr += '\n' + self.indent + loc_indent + 'specular ' + str(self.specular)\
+                    + ' ' + fmt.format(self.shininess).rstrip('0').rstrip('.')
+
+        if self.alpha_rejection_function != 'always_pass':
+            repr += '\n' + self.indent + loc_indent + 'alpha_rejection ' + self.alpha_rejection_function + ' ' + str(int(self.alpha_rejection_threshold))
+
+        if self.alpha_to_coverage != 'off':
+            repr += '\n' + self.indent + loc_indent + 'alpha_to_coverage ' + self.alpha_to_coverage
+
+        if self.scene_blend != 'one zero':
+            repr += '\n' + self.indent + loc_indent + 'scene_blend ' + self.scene_blend
+
+        if self.depth_write != 'on':
+            repr += '\n' + self.indent + loc_indent + 'depth_write ' + self.depth_write
+
+        if self.depth_check != 'on':
+            repr += '\n' + self.indent + loc_indent + 'depth_check ' + self.depth_check
+
+        if self.depth_func != 'less_equal':
+            repr += '\n' + self.indent + loc_indent + 'depth_func ' + self.depth_func
+
+        if not float_eq(0.0, self.depth_bias_constant) or not float_eq(0.0, self.depth_bias_slopescale):
+            repr += '\n' + self.indent + loc_indent + 'depth_bias  '\
+                    + str(self.depth_bias_constant)\
+                    + (str(self.depth_bias_slopescale) if not float_eq(0.0, self.depth_bias_slopescale) else '')
+
+        if self.cull_hardware != 'clockwise':
+            repr += '\n' + self.indent + loc_indent + 'cull_hardware ' + self.cull_hardware
+
+        if self.cull_software != 'back':
+            repr += '\n' + self.indent + loc_indent + 'cull_software ' + self.cull_software
 
         for tu in self.texture_units:
             tu.indent = self.indent + loc_indent
-            repr += str(tu)
+            repr += '\n' + str(tu)
 
-        repr += self.indent + '}'
+        for sh in self.shaders:
+            sh.indent = self.indent + loc_indent
+            repr += '\n' + str(sh)
+
+        repr += '\n' + self.indent + '}'
 
         return repr
 
@@ -489,7 +524,7 @@ class MTechnique(object):
 
         repr = ''
         repr += '\n' + self.indent + 'technique' + ((' ' + self.name) if self.name else '')
-        repr += '\n' + self.indent + '{\n'
+        repr += '\n' + self.indent + '{'
 
         if self.scheme:
             repr += '\n' + self.indent + loc_indent + 'scheme ' + self.scheme
@@ -505,7 +540,7 @@ class MTechnique(object):
 
         for p in self.passes:
             p.indent = self.indent + loc_indent
-            repr += str(p)
+            repr += '\n' + str(p)
 
         repr += '\n' + self.indent + '}\n'
 
