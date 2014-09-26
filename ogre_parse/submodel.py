@@ -480,6 +480,12 @@ class MPass(object):
         if self.transparent_sorting != 'on':
             repr += '\n' + self.indent + loc_indent + 'transparent_sorting ' + self.transparent_sorting
 
+        if self.illumination_stage != 'none':
+            repr += '\n' + self.indent + loc_indent + 'illumination_stage ' + self.illumination_stage
+
+        if self.iteration != 'once':
+            repr += '\n' + self.indent + loc_indent + 'iteration ' + self.iteration
+
         for tu in self.texture_units:
             tu.indent = self.indent + loc_indent
             repr += '\n' + str(tu)
