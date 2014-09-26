@@ -1,8 +1,10 @@
 
-import glob
 import os
 
+
 import ogre_parse.reader
+from ogre_parse.transforms import *
+
 
 # collect all files with an extension matching on of 'extensions'
 # returns (materials, programs, compositors)
@@ -23,11 +25,26 @@ def script_search(aFolder):
     return (mats, progs, comps)
 
 
-def parse_script(aPath, prefix=''):
+def transform_script(input_script, fpath, oper):
+    output_script = ogre_parse.model.Script()
+
+    # change all the materials with our operator
+    for m in input_script.materials:
+        mt = oper.mat(m)
+        if mt:
+            output_script.materials.append(mt)
+        else:
+            output_script.materials.append(m)
+
+    return output_script
+
+
+def parse_script(aPath):
 
     script = None
     scriptReader = ogre_parse.reader.ReadScript()
     with open(aPath, mode='r') as f:
+        print('reading file: %s' % aPath)
         ftext = f.read()
         try:
             res = scriptReader.parseString(ftext)
@@ -35,21 +52,19 @@ def parse_script(aPath, prefix=''):
         except Exception as e:
             print('--an error occurred reading,\n%s with message:\n%s' % (aPath, str(e)))
 
-    if prefix:
-        fpath = os.path.join(prefix, os.path.split(aPath)[-1])
-        if not os.path.isdir(os.path.dirname(fpath)):
-            os.mkdir(os.path.dirname(fpath))
-
-        if os.path.exists(fpath):
-            print('--- overwriting existing file: %s' % fpath)
-            # fpath = ' '.join(os.path.split(fpath)[0:-1]) + os.path.splitext(fpath)[-1]
-            # print('--- renaming to avoid conflict with existing file: %s' % )
-
-        print('writing to file: %s' % fpath)
-        with open(fpath, mode='w') as f:
-            f.write(str(script))
-
     return script
+
+
+def count_passes_with_no_shaders(mlist):
+    cns = 0
+    for m in mlist:
+        for t in m.techniques:
+            for p in t.passes:
+                if len(p.shaders) == 0:
+                    cns += 1
+                    print('material [%s] has no shaders in a pass' % m.name)
+
+    return cns
 
 
 def show_stats(a_folder):
@@ -57,12 +72,37 @@ def show_stats(a_folder):
     print(20*'-' + '\nogre statistics, under folder, %s, \nreading files: [%s] material, [%s] program, [%s] compositor\n'
           % (search_folder, len(mats), len(progs), len(comps)) + 20*'-')
 
+    # prefix = 'forged_' # needed for vehicles, modified parser to read and write reversed order for texture-shader-order bug. allowed me to see any diffs easily.
+    # prefix = 'fixed_'  # needed for vehicles, changed order of Vehicles' textures and shaders.
+    # prefix = 'unified_' # folder to hold results of the UnifyTechniques transform
+    prefix = 'multipass_' # folder to hold the results of the SplitPass transform
+    passes_with_no_shaders = 0
     len_mats = 0
     for m in mats:
-        script = parse_script(m, 'forged_')
+        script = parse_script(m)
         if not script:
             continue
+        else:
+            if prefix:
+                fpath = os.path.join(prefix, os.path.split(m)[-1])
+                if not os.path.isdir(os.path.dirname(fpath)):
+                    os.mkdir(os.path.dirname(fpath))
 
+                if os.path.exists(fpath):
+                    print('--- overwriting existing file: %s' % fpath)
+                    # fpath = ' '.join(os.path.split(fpath)[0:-1]) + os.path.splitext(fpath)[-1]
+                    # print('--- renaming to avoid conflict with existing file: %s' % )
+
+                # output_script = transform_script(script, fpath, UnifyTechniques())
+                output_script = transform_script(script, fpath, SplitPass())
+
+                print('writing to file: %s' % fpath)
+                with open(fpath, mode='w') as f:
+                    f.write(str(output_script))
+
+                script = output_script
+
+        passes_with_no_shaders += count_passes_with_no_shaders(script.materials)
         len_mats += len(script.materials)
 
         with open(m, 'r') as f:
@@ -90,18 +130,13 @@ def show_stats(a_folder):
 
         len_comps += len(script.compositors)
 
-    print(20*'-' + '\n[%s] materials, [%s] shader definitions, [%s] compositors' % (len_mats, len_progs, len_comps))
+    print(20*'-' + '\n[%s] materials ([%s] passes with no shaders), [%s] shader definitions, [%s] compositors' \
+          % (len_mats, passes_with_no_shaders, len_progs, len_comps))
 
 
 if __name__ == '__main__':
-    # search_folder = 'D:\\Documents\\STI\\code\\projects\\SystemsTech\\SDK_various'
-    search_folder = r'C:\STISIM3\Data\Miscellaneous'
+    # search_folder = r'original'
+    # search_folder = r'fixed_'
+    search_folder = r'unified_'
     show_stats(search_folder)
-
-    # fullpath = r'D:\Documents\STI\code\projects\SystemsTech\SDK_various\install\SystemsTech_SDK_rev1445\data\Examples\Particles\particles.material'
-    # parsedres = parse_script(fullpath)
-    # # print(parsedres.dump())
-    # print(len(parsedres[0].materials))
-    # # script = parsedres[0]
-    # # print(str(script))
 
