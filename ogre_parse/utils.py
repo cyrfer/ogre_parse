@@ -135,6 +135,8 @@ def show_stats(a_folder):
 
 
 if __name__ == '__main__':
+    os.chdir('vehicles')
+
     # search_folder = r'original'
     # search_folder = r'fixed_'
     search_folder = r'unified_'
