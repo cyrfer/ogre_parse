@@ -5,11 +5,11 @@
 https://github.com/cyrfer/ogre_parse
 
 
-The goal of this library is to provide tools to load, manipulate, and write OGRE resources.
+The goal of this library is to provide tools to load, manipulate, and write OGRE resources using Python.
 Efforts are currently focused on the text-based "script" file formats (.material, .program, .compositor).
 
 ### Status:
-1. Wrote parsers for many script objects. There is one known parse error at the moment.
+1. Wrote parsers for many script objects. There is one known parse error with material passes at the moment. Placeholder parsers exist for program and compositor definitions.
 2. Implemented string-ification of objects to support writing scripts.
 3. Unit tests are plentiful, but more could be added.
 4. Dirty-hack utilities show how to leverage the parsers and writers to apply transformations to script objects.
