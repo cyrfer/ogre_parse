@@ -21,6 +21,15 @@ vertex_program_ref myVertShader
 }
 '''
 
+test_model_shaderref_param_named = '''
+fragment_program_ref myFragShader
+{
+    param_named_auto MVP worldviewproj_matrix
+    param_named myVec float4 .1 0.2 .3 0.4
+    param_named myVar float 0.5
+}
+'''
+
 test_model_pass = '''
 pass myOptionalPassName
 {
@@ -72,9 +81,16 @@ class TestModel(unittest.TestCase):
         parsed = grammar.parseString(test_model_shaderref_vert)
         model = parsed[0]
         modstr = str(model)
-        # print('--- str(model):\n%s---' % modstr)
+        # print('--- str(model)---\n%s' % modstr)
         self.assertEqual(test_model_shaderref_vert.strip(), modstr.strip())
 
+    def test_shaderref_param(self):
+        grammar = ogre_parse.subreader.ReadShaderReference()
+        parsed = grammar.parseString(test_model_shaderref_param_named)
+        model = parsed[0]
+        modstr = str(model)
+        print('--- str(model)---\n%s' % modstr)
+        self.assertEqual(test_model_shaderref_param_named.strip(), modstr.strip())
 
     def test_mat_pass(self):
         grammar = ogre_parse.subreader.ReadPass()

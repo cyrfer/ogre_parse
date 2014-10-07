@@ -6,6 +6,9 @@ from ogre_parse.basemodel import *
 from pyparsing import ParseException
 
 
+# TODO: for now, __repr__ = __str__, but I want to improve this depending on where __repr__ is used.
+# http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
+
 
 # should be hooked up to a 'subreader.ReadTextureUnit' instance
 class MTextureUnit(object):
@@ -100,7 +103,7 @@ class MTextureUnit(object):
 
     def __str__(self):
         loc_indent = 4*' '
-        repr = self.indent + 'texture_unit' + ((' ' + self.name) if self.name else '')
+        repr = '\n' + self.indent + 'texture_unit' + ((' ' + self.name) if self.name else '')
         repr += '\n' + self.indent + '{'
 
         if self.texture_alias:
@@ -152,7 +155,6 @@ class MTextureUnit(object):
 
         return repr
 
-    # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
     __repr__ = __str__
 
 
@@ -203,14 +205,19 @@ class MShaderRef(object):
         repr += '\n' + self.indent + self.stage + ' ' + self.resource_name
         repr += '\n' + self.indent + '{'
 
-        # show all the 'auto' params
-        for k,v in self.param_named_auto.items():
-            repr += '\n' + self.indent + loc_indent + str(k) + ' ' + str(v)
+        # TODO: iterating over a dictionary produces results in a random order which can cause unit tests to fail.
+        # see unit test test_shaderref_param
+        # show 'param_named_auto'
+        for k, v in self.param_named_auto.items():
+            repr += '\n' + self.indent + loc_indent + 'param_named_auto ' + str(k) + ' ' + str(v)
+
+        # show 'param_named'
+        for k, v in self.param_named.items():
+            repr += '\n' + self.indent + loc_indent + 'param_named ' + str(k) + ' ' + str(v)
 
         repr += '\n' + self.indent + '}'
         return repr
 
-    # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
     __repr__ = __str__
 
 
@@ -498,7 +505,6 @@ class MPass(object):
 
         return repr
 
-    # http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
     __repr__ = __str__
 
 
