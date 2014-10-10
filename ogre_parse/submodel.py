@@ -455,16 +455,16 @@ class MPass(object):
         if self.lighting != 'on':
             repr += '\n' + self.indent + loc_indent + 'lighting ' + self.lighting
 
-        if self.shading != 'on':
+        if self.shading != 'gouraud':
             repr += '\n' + self.indent + loc_indent + 'shading ' + self.shading
 
-        if self.polygon_mode != 'on':
+        if self.polygon_mode != 'solid':
             repr += '\n' + self.indent + loc_indent + 'polygon_mode ' + self.polygon_mode
 
-        if self.polygon_mode_overrideable != 'on':
+        if self.polygon_mode_overrideable != 'true':
             repr += '\n' + self.indent + loc_indent + 'polygon_mode_overrideable ' + self.polygon_mode_overrideable
 
-        if self.fog_override != 'on':
+        if self.fog_override != 'false':
             repr += '\n' + self.indent + loc_indent + 'fog_override ' + self.fog_override
 
         if self.alpha_rejection_function != 'always_pass':
