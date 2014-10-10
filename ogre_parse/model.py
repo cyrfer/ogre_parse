@@ -146,9 +146,10 @@ class Material(object):
         for k, v in self.texture_alias.items():
             repr += '\n' + loc_indent + k + ' ' + v
 
-        for t in self.techniques:
+        for ti in range(len(self.techniques)):
+            t = self.techniques[ti]
             t.indent = loc_indent
-            repr += str(t)
+            repr += str(t) + ('\n' if (ti < (len(self.techniques)-1)) else '')
 
         repr += '\n' + '}\n'
 

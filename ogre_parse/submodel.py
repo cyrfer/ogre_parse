@@ -433,7 +433,7 @@ class MPass(object):
 
 
     def __str__(self):
-        repr = self.indent + 'pass' + ((' ' + self.name) if self.name else '')
+        repr = '\n' + self.indent + 'pass' + ((' ' + self.name) if self.name else '')
         repr += '\n' + self.indent + '{'
 
         loc_indent = 4*' '
@@ -454,6 +454,18 @@ class MPass(object):
 
         if self.lighting != 'on':
             repr += '\n' + self.indent + loc_indent + 'lighting ' + self.lighting
+
+        if self.shading != 'on':
+            repr += '\n' + self.indent + loc_indent + 'shading ' + self.shading
+
+        if self.polygon_mode != 'on':
+            repr += '\n' + self.indent + loc_indent + 'polygon_mode ' + self.polygon_mode
+
+        if self.polygon_mode_overrideable != 'on':
+            repr += '\n' + self.indent + loc_indent + 'polygon_mode_overrideable ' + self.polygon_mode_overrideable
+
+        if self.fog_override != 'on':
+            repr += '\n' + self.indent + loc_indent + 'fog_override ' + self.fog_override
 
         if self.alpha_rejection_function != 'always_pass':
             repr += '\n' + self.indent + loc_indent + 'alpha_rejection ' + self.alpha_rejection_function + ' ' + str(int(self.alpha_rejection_threshold))
@@ -541,15 +553,15 @@ class MTechnique(object):
 
             if tech.gpu_vendor_rules:
                 for vr in tech.gpu_vendor_rules:
-                    self.gpu_vendor_rule.append( vr )
+                    self.gpu_vendor_rule.append(vr)
 
             if tech.gpu_device_rules:
                 for dr in tech.gpu_device_rules:
-                    self.gpu_device_rule.append( dr )
+                    self.gpu_device_rule.append(dr)
 
             if tech.passes:
                 for p in tech.passes:
-                    self.passes.append( p )
+                    self.passes.append(p)
 
 
     def __str__(self):
@@ -571,9 +583,10 @@ class MTechnique(object):
         if self.shadow_receiver_material:
             repr += '\n' + self.indent + loc_indent + 'shadow_receiver_material ' + self.shadow_receiver_material
 
-        for p in self.passes:
+        for pi in range(len(self.passes)):
+            p = self.passes[pi]
             p.indent = self.indent + loc_indent
-            repr += '\n' + str(p)
+            repr += str(p) + ('\n' if (pi < (len(self.passes)-1)) else '')
 
         repr += '\n' + self.indent + '}'
 

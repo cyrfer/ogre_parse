@@ -52,6 +52,10 @@ material mn
     {
         pass
         {
+            shading phong
+            polygon_mode wireframe
+            polygon_mode_overrideable true
+            fog_override true exp 1 1 1 0.002 100 10000
         }
     }
 }
