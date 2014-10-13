@@ -25,7 +25,7 @@ def script_search(aFolder):
     return (mats, progs, comps)
 
 
-def transform_script(input_script, fpath, oper):
+def transform_materials(input_script, fpath, oper):
     output_script = ogre_parse.model.Script()
 
     # change all the materials with our operator
@@ -67,15 +67,16 @@ def count_passes_with_no_shaders(mlist):
     return cns
 
 
-def show_stats(a_folder):
+
+def show_folder_stats(a_folder):
     (mats, progs, comps) = script_search(a_folder)
     print(20*'-' + '\nogre statistics, under folder, %s, \nreading files: [%s] material, [%s] program, [%s] compositor\n'
-          % (search_folder, len(mats), len(progs), len(comps)) + 20*'-')
+          % (a_folder, len(mats), len(progs), len(comps)) + 20*'-')
+    return (mats, progs, comps)
 
-    # prefix = 'forged_' # needed for vehicles, modified parser to read and write reversed order for texture-shader-order bug. allowed me to see any diffs easily.
-    # prefix = 'fixed_'  # needed for vehicles, changed order of Vehicles' textures and shaders.
-    # prefix = 'unified_' # folder to hold results of the UnifyTechniques transform
-    prefix = 'multipass_' # folder to hold the results of the SplitPass transform
+
+def transform_script(mats, progs, comps,
+                     xform_exception_list, pipeline, prefix):
     passes_with_no_shaders = 0
     len_mats = 0
     for m in mats:
@@ -90,17 +91,20 @@ def show_stats(a_folder):
 
                 if os.path.exists(fpath):
                     print('--- overwriting existing file: %s' % fpath)
-                    # fpath = ' '.join(os.path.split(fpath)[0:-1]) + os.path.splitext(fpath)[-1]
-                    # print('--- renaming to avoid conflict with existing file: %s' % )
 
-                # output_script = transform_script(script, fpath, UnifyTechniques())
-                output_script = transform_script(script, fpath, SplitPass())
+                if os.path.basename(fpath) not in xform_exception_list:
+                    for i in range(len(pipeline)):
+                        output_script = transform_materials(script, fpath, pipeline[i])
+                        script = output_script
+                else:
+                    print('''
+/////////////////////////////////////
+    not transforming file [%s].
+/////////////////////////////////////''' % fpath)
 
                 print('writing to file: %s' % fpath)
                 with open(fpath, mode='w') as f:
-                    f.write(str(output_script))
-
-                script = output_script
+                    f.write(str(script))
 
         passes_with_no_shaders += count_passes_with_no_shaders(script.materials)
         len_mats += len(script.materials)
@@ -132,13 +136,3 @@ def show_stats(a_folder):
 
     print(20*'-' + '\n[%s] materials ([%s] passes with no shaders), [%s] shader definitions, [%s] compositors' \
           % (len_mats, passes_with_no_shaders, len_progs, len_comps))
-
-
-if __name__ == '__main__':
-    os.chdir('vehicles')
-
-    # search_folder = r'original'
-    # search_folder = r'fixed_'
-    search_folder = r'unified_'
-    show_stats(search_folder)
-

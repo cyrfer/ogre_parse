@@ -14,25 +14,25 @@ class SplitPass(object):
         self.split_iteration = 'once_per_light'
 
         self.shader_per_texture_vert_ambient = {0: 'phong',
-                                                1: 'phong_1UV_fog',
-                                                2: 'phong_1UV_fog'}
+                                                1: 'phong_1UV',
+                                                2: 'phong_1UV'}
 
-        self.shader_per_texture_frag_ambient = {0: 'BP_fog',
-                                                1: 'BP_fog_decal',
-                                                2: 'BP_fog_decal_emissive'}
+        self.shader_per_texture_frag_ambient = {0: 'BP',
+                                                1: 'BP_decal',
+                                                2: 'BP_decal_emissive'}
 
         # the default shaders if the pass does not use any
         self.shader_per_texture_vert = {0: 'phong',
-                                        1: 'phong_1UV_fog',
-                                        2: 'phong_1UV_fog_tangent',
-                                        3: 'phong_1UV_fog_tangent'}
-                                        # 4: 'phong_1UV_fog_tangent'} # should not need 4
+                                        1: 'phong_1UV',
+                                        2: 'phong_1UV_tangent',
+                                        3: 'phong_1UV_tangent'}
+                                        # 4: 'phong_1UV_tangent'} # should not need 4
 
-        self.shader_per_texture_frag = {0: 'BP_fog',
-                                        1: 'BP_fog_decal',
-                                        2: 'BP_fog_decal_normal',
-                                        3: 'BP_fog_decal_normal_specular'}
-                                        # 4: 'BP_fog_decal_emissive_normal_specular'} # should not need 4
+        self.shader_per_texture_frag = {0: 'BP',
+                                        1: 'BP_decal',
+                                        2: 'BP_decal_normal',
+                                        3: 'BP_decal_normal_specular'}
+                                        # 4: 'BP_decal_emissive_normal_specular'} # should not need 4
 
     def log(self, msg, mname):
         logtext = 40*'*' + '\nMaterial [%s] had an issue: %s' % (mname, msg) + '\n' + 40*'*'
@@ -74,12 +74,25 @@ class SplitPass(object):
 
         pass0 = tech.passes[0] # the ambient pass
 
+        if pass0.depth_write == 'off':
+            pass0.depth_write = 'on'
+            pass0.transparent_sorting = 'force'
+            self.log('depth_write was [off], change to [on] and using [force] for transparent_sorting', mname)
+
+        if pass0.lighting == 'off':
+            self.log('lighting was disabled, enabling', mname)
+            pass0.lighting = 'on'
+
+        if pass0.shininess < 0.01:
+            # fix shininess settings that don't work for lighting passes
+            pass0.shininess = 20.0
+
         # we need to clear the shaders later, so no need for this anymore.
         # if len(pass0.shaders) < 2:
         #     pass0.shaders.clear() # sometimes a pass has just a frag shader
         #     self.add_shaders(pass0, mname)
 
-        pass1 = copy.deepcopy(pass0) # the per-light pass
+        pass1 = copy.deepcopy(pass0)  # the per-light pass
 
         # adjust properties on new pass
         pass1.name = 'per_light'
@@ -88,7 +101,8 @@ class SplitPass(object):
         if pass1.scene_blend == 'one zero':
             pass1.scene_blend = 'add'
         # don't log these because they are known and common
-        # elif (pass1.scene_blend != 'src_alpha one_minus_src_alpha') and (pass1.scene_blend != 'alpha_blend'):
+        elif (pass1.scene_blend != 'src_alpha one_minus_src_alpha') or (pass1.scene_blend != 'alpha_blend'):
+            pass1.scene_blend = 'src_alpha one'
         else:
             logtext = '''
 ----------------------------------------
@@ -115,14 +129,22 @@ class SplitPass(object):
 
         # turn ON other colors
         pass1.diffuse = ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
-        pass1.specular = ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
+        # pass1.specular = pass0.specular #ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
+        if pass1.shininess < 0.01:
+            # fix shininess settings that don't work for lighting passes
+            pass1.shininess = 20.0
 
         # adjust properties on pass0
         pass0.name = 'ambient'
         pass0.iteration = 'once'
         pass0.illumination_stage = 'ambient'
-        if pass0.scene_blend == 'one zero':
-            pass0.scene_blend = 'add'
+        if pass0.scene_blend != 'one zero':
+            if (pass0.scene_blend == 'alpha_blend') or (pass0.scene_blend == 'src_alpha one_minus_src_alpha'):
+                pass
+                # do not change, for now.
+            else:
+                self.log('needed to change pass0.scene_blend from [%s] to [%s]' % (pass0.scene_blend, 'one zero'), mname)
+                pass0.scene_blend = 'one zero'
 
         # fix the shaders
         pass0.shaders.clear()
