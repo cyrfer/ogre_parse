@@ -17,9 +17,14 @@ class SplitPass(object):
                                                 1: 'phong_1UV',
                                                 2: 'phong_1UV'}
 
-        self.shader_per_texture_frag_ambient = {0: 'BP',
-                                                1: 'BP_decal',
-                                                2: 'BP_decal_emissive'}
+        # need to supply technique.scheme to get correct shader names
+        self.shader_per_texture_frag_ambient = {          '': {0: 'BP',
+                                                               1: 'BP_decal',
+                                                               2: 'BP_decal_emissive'},
+                                                'FR_stencil': {0: 'stencil_BP',
+                                                               1: 'stencil_BP_decal',
+                                                               2: 'stencil_BP_decal_emissive'}
+                                                }
 
         # the default shaders if the pass does not use any
         self.shader_per_texture_vert = {0: 'phong',
@@ -28,18 +33,32 @@ class SplitPass(object):
                                         3: 'phong_1UV_tangent'}
                                         # 4: 'phong_1UV_tangent'} # should not need 4
 
-        self.shader_per_texture_frag = {0: 'BP',
-                                        1: 'BP_decal',
-                                        2: 'BP_decal_normal',
-                                        3: 'BP_decal_normal_specular'}
+        # need to supply technique.scheme to get correct shader names
+        self.shader_per_texture_frag = {          '': {0: 'BP',
+                                                       1: 'BP_decal',
+                                                       2: 'BP_decal_normal',
+                                                       3: 'BP_decal_normal_specular'},
+
+                                        'FR_stencil': {0: 'stencil_BP',
+                                                       1: 'stencil_BP_decal',
+                                                       2: 'stencil_BP_decal_normal',
+                                                       3: 'stencil_BP_decal_normal_specular'}
+                                        }
                                         # 4: 'BP_decal_emissive_normal_specular'} # should not need 4
+
+        # useful for filtering based on known problems with the resource
+        self.has_bad_tangents = []
+
+        # useful for correcting material color
+        self.specular_gain = 0.01
+
 
     def log(self, msg, mname):
         logtext = 40*'*' + '\nMaterial [%s] had an issue: %s' % (mname, msg) + '\n' + 40*'*'
         logging.info(logtext)
         print(logtext)
 
-    def add_shaders_direct(self, p, mname):
+    def add_shaders_direct(self, techscheme, p, mname):
         # self.log(10*'-' + 'adding shaders' + 10*'-', mname)
 
         sh_vert = ogre_parse.submodel.MShaderRef()
@@ -48,12 +67,16 @@ class SplitPass(object):
 
         sh_frag = ogre_parse.submodel.MShaderRef()
         sh_frag.stage = 'fragment_program_ref'
-        sh_frag.resource_name = self.shader_per_texture_frag[len(p.texture_units)]
+
+        if techscheme in self.shader_per_texture_frag:
+            sh_frag.resource_name = self.shader_per_texture_frag[techscheme][len(p.texture_units)]
+        else:
+            self.log('add_shaders_direct: could not apply fragment shader for unknown Technique.scheme [%s]' % techscheme, mname)
 
         p.shaders.append( sh_vert )
         p.shaders.append( sh_frag )
 
-    def add_shaders_ambient(self, p, mname):
+    def add_shaders_ambient(self, techscheme, p, mname):
         # self.log(10*'-' + 'adding shaders' + 10*'-', mname)
 
         sh_vert = ogre_parse.submodel.MShaderRef()
@@ -62,7 +85,11 @@ class SplitPass(object):
 
         sh_frag = ogre_parse.submodel.MShaderRef()
         sh_frag.stage = 'fragment_program_ref'
-        sh_frag.resource_name = self.shader_per_texture_frag_ambient[len(p.texture_units)]
+
+        if techscheme in self.shader_per_texture_frag_ambient:
+            sh_frag.resource_name = self.shader_per_texture_frag_ambient[techscheme][len(p.texture_units)]
+        else:
+            self.log('add_shaders_ambient: could not apply fragment shader for unknown Technique.scheme [%s]' % techscheme, mname)
 
         p.shaders.append( sh_vert )
         p.shaders.append( sh_frag )
@@ -119,9 +146,16 @@ class SplitPass(object):
         pass1.shaders.clear()
         if len(pass1.texture_units) == 4:  # sometimes the body has 4 textures by mistake (D,E,N,S)
             del pass1.texture_units[1]  # remove E, we only require D,N,S for this per-light pass
-        if len(pass1.texture_units) == 3:  # the DNS (body) material is messing up with 3 textures
-            del pass1.texture_units[2:]  # only use 2 textures (D,N) instead of 3 (D,N,S)
-        self.add_shaders_direct(pass1, mname)
+
+        # if len(pass1.texture_units) == 3:  # the DNS (body) material is messing up with 3 textures
+        #     del pass1.texture_units[2:]  # only use 2 textures (D,N) instead of 3 (D,N,S)
+
+        if len(pass1.texture_units) >= 2:  # (D,N,~S~)
+            if mname in self.has_bad_tangents:
+                self.log('removing [%s] texture_units because it was labelled to have bad tangent vectors' % (len(pass1.texture_units)-1), mname)
+                del pass1.texture_units[1:]  # remove N,~S~, leaving only D
+
+        self.add_shaders_direct(tech.scheme, pass1, mname)
 
         # turn OFF ambient
         pass1.ambient = ogre_parse.basemodel.Color(vals=[0, 0, 0, 1])
@@ -129,7 +163,8 @@ class SplitPass(object):
 
         # turn ON other colors
         pass1.diffuse = ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
-        # pass1.specular = pass0.specular #ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
+        # specular is just too high
+        pass1.specular = self.specular_gain * pass1.specular #ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
         if pass1.shininess < 0.01:
             # fix shininess settings that don't work for lighting passes
             pass1.shininess = 20.0
@@ -152,7 +187,7 @@ class SplitPass(object):
             del pass0.texture_units[2:] # we only require D,E
         elif len(pass0.texture_units) == 3: # D,N,S
             del pass0.texture_units[1:] # we only require D
-        self.add_shaders_ambient(pass0, mname)
+        self.add_shaders_ambient(tech.scheme, pass0, mname)
 
         # turn ON ambient
         pass0.ambient = ogre_parse.basemodel.Color(vals=[1, 1, 1, 1])
