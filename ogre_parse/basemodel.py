@@ -2,6 +2,7 @@ __author__ = 'cyrfer'
 
 import array
 import math
+import copy
 
 
 def float_eq(a, b, epsilon=1e-7):
@@ -65,4 +66,19 @@ class Color(object):
 
     def __len__(self):
         return 4
+
+    # support RHS multiplication
+    def __mul__(self, scalar):
+        if not isinstance(scalar, float) and not isinstance(scalar, int):
+            raise ValueError('argument to multiply with Color should be a scalar.')
+
+        prod = copy.deepcopy(self)
+        prod[0] = scalar * prod[0]
+        prod[1] = scalar * prod[1]
+        prod[2] = scalar * prod[2]
+        prod[3] = scalar * prod[3]
+        return prod
+
+    # support LHS multiplication
+    __rmul__ = __mul__
 
